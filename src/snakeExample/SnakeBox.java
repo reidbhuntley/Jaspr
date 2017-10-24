@@ -3,16 +3,13 @@ package snakeExample;
 import java.awt.Color;
 
 import engine.Entity;
-import engine.Routine;
 
 public class SnakeBox extends Entity {
-	public SnakeBox(Routine r, double x, double y, Color color, int age){
+	public SnakeBox(double x, double y, Color color, int age, int dir){
 		super();
-		addComponent(r, new Position(x, y));
-		addComponent(r, new BoxColor(color));
-		addComponent(r, new BoxAge(age));
-	}
-	public SnakeBox(Routine r, double x, double y, Color color){
-		this(r,x,y,color,0);
+		addComponent(new Position(x, y));
+		addComponent(new BoxColor(color));
+		addComponent(new BoxAge(age));
+		addComponent(new SnakeDir(dir));
 	}
 }

@@ -25,4 +25,10 @@ public class KeylogManager {
 	public static boolean released(int keyCode){
 		return keysReleased.contains(keyCode);
 	}
+	public static List<Integer> getPressedList(){
+		return new ArrayList<>(keysPressed);
+	}
+	public static List<Integer> getReleasedList(){
+		return new ArrayList<>(keysReleased);
+	}
 }

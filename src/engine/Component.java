@@ -1,5 +1,5 @@
 package engine;
 
-public abstract class Component {
-	
+public class Component extends Dependency {
+
 }

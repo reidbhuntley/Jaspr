@@ -12,59 +12,126 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class GameManager {
+	
+	private GamePhase currentPhase;
+	private ExecutorService executor;
+	private EntitySystem es;
+	private boolean newPhase, quit;
+	//private List<Event> events;
+	private long t;
+	private final long dt;
+	
+	public GameManager(long targetFps, GamePhase startPhase){
+		executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
+		newPhase = false;
+		quit = true;
+		t = 0;
+		dt = (long) (Math.pow(10,9)/targetFps);
+		//events = new ArrayList<>();
+		setPhase(startPhase);
+	}
+	
+	public void start() throws InterruptedException, ExecutionException{
+		if(!quit)
+			return;
+		quit = false;
+		
+	    long currentTime = System.nanoTime(), accumulator = 0;
+	    currentPhase.renderer().onInit();
+	    while (!quit){
+	       	long newTime = System.nanoTime();
+	        long frameTime = newTime - currentTime;
+	        if(frameTime < dt)
+	        	Thread.sleep((dt - frameTime)/1000000);
+	        currentTime = newTime;
 
-	private static long TARGET_FPS = 80;
-	private static long TARGET_NPF = (long) (Math.pow(10,9)/TARGET_FPS);
-	private static long totalTimes = 0;
-	private static long numOfTimes = -3;
-	
-	private static GamePhase currentPhase;
-	private static ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
-	
-	public static void setPhase(GamePhase phase) {
-		if(currentPhase != null)
-			currentPhase.onQuit();
-		currentPhase = phase;
+	        accumulator += frameTime;
+	        while (accumulator >= dt){
+	            processPhase();
+	            accumulator -= dt;
+	            t += dt;
+	        }
+	        
+	        Renderer r = currentPhase.renderer();
+	        if(r != null){
+	        	r.prepareForProcessing(this, es);
+	        	r.render();
+	        }
+	    }
 	}
 	
-	public static void setTargetFps(long fps){
-		TARGET_FPS = fps;
-		TARGET_NPF = (long) (Math.pow(10,9)/TARGET_FPS);
-	}
-	
-	public static void processPhase() throws InterruptedException, ExecutionException{
-		long startTime = System.nanoTime();
+	private void processPhase() throws InterruptedException, ExecutionException{
 		KeylogManager.fetchKeys();
 		List<Routine> routineQueue = new ArrayList<Routine>(currentPhase.getRoutines());
-		HashMap<Class<? extends Component>, Future<?>> routinesExecuting = new HashMap<>();
+		//routineQueue.addAll(events);
+		for(Routine r : routineQueue){
+			r.prepareForProcessing(this, es);
+			if(newPhase)
+				r.onPhaseStart();
+		}
+		if(newPhase && currentPhase.renderer() != null)
+			currentPhase.renderer().onPhaseStart();
+		newPhase = false;
+		
+		HashMap<Class<? extends Dependency>, Future<?>> routinesExecuting = new HashMap<>();
 		while(routineQueue.size() > 0 || routinesExecuting.size() > 0){
-			for(Iterator<Class<? extends Component>> iter = routinesExecuting.keySet().iterator(); iter.hasNext();){
+			for(Iterator<Class<? extends Dependency>> iter = routinesExecuting.keySet().iterator(); iter.hasNext();){
 				if(routinesExecuting.get(iter.next()).get() == null)
 					iter.remove();
 			}
 			for(Iterator<Routine> iter = routineQueue.iterator(); iter.hasNext();){
 				Routine r = iter.next();
-				List<Class<? extends Component>> keySet = new ArrayList<>(routinesExecuting.keySet()), dependencies = Arrays.asList(r.dependencies());
-				if(Collections.disjoint(keySet, dependencies)){
-					Future<?> future = executor.submit(r);
-					for(Class<? extends Component> c : dependencies)
-						routinesExecuting.put(c, future);
+				List<Class<? extends Dependency>> keySet = new ArrayList<>(routinesExecuting.keySet());
+				if(r.dependencies() != null){
+					List<Class<? extends Dependency>> dependencies = Arrays.asList(r.dependencies());
+					if(Collections.disjoint(keySet, dependencies)){
+						r.prepareForProcessing(this, es);
+						Future<?> future = executor.submit(r);
+						for(Class<? extends Dependency> c : dependencies)
+							routinesExecuting.put(c, future);
+						iter.remove();
+					}
+				} else {
+					executor.submit(r);
 					iter.remove();
 				}
 			}
+			
 		}
-		long timeDiff = System.nanoTime() - startTime;
-		long timeLeft = TARGET_NPF - timeDiff;
-		numOfTimes++;
-		if(numOfTimes > 0){
-			totalTimes += timeDiff;
-		}
-		if(timeLeft > 0)
-			Thread.sleep(timeLeft/1000000);
 	}
 	
-	public static double averageFps(){
-		return 1000000000/(double)(totalTimes/numOfTimes);
+	public void addEntitySystem(EntitySystem entitySystem){
+		es = entitySystem;
+	}
+	
+	public void setPhase(GamePhase phase) {
+		if(currentPhase != null)
+			currentPhase.onQuit();
+		currentPhase = phase;
+		//events.addAll(phase.getEvents());
+		newPhase = true;
+	}
+	
+	/*
+	public void queueEvent(Event e){
+		events.add(e);
+	}
+	
+	public void killEvent(Event e){
+		events.remove(e);
+	}
+	*/
+	
+	public void quit(){
+		quit = true;
+	}
+	
+	public long dt(){
+		return dt;
+	}
+	
+	public long t(){
+		return t;
 	}
 	
 }

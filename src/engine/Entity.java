@@ -5,42 +5,50 @@ public class Entity {
 	private int id;
 	
 	public Entity(int i){
-		if(EntitySystem.defaultSys == null)
+		if(EntitySystem.es == null)
 			throw new IllegalStateException("There is no global EntitySystem; create a new EntitySystem before creating Entities");
 		id = i;
 	}
 	
 	public Entity(){
-		if(EntitySystem.defaultSys == null)
+		if(EntitySystem.es == null)
 			throw new IllegalStateException("There is no global EntitySystem; create a new EntitySystem before creating Entities");
 		id = 0;
-		EntitySystem.defaultSys.registerEntity(this);
+		EntitySystem.registerEntity(this);
 	}
 	
-	public Entity(Routine routine, Component... components){
+	public Entity(Component... components){
 		this();
-		addComponents(routine, components);
+		addComponents(components);
 	}
 	
-	public <T extends Component> T getAs(Routine routine, Class<T> type){
-		return routine.getComponent(this, type);
+	public <T extends Component> T getAs(Class<T> type){
+		return EntitySystem.es.getComponent(this, type);
 	}
 	
-	public void addComponent(Routine routine, Component c){
-		routine.addComponentToEntity(this, c);
+	public void addComponent(Component c){
+		EntitySystem.es.addComponentToEntity(this, c);
 	}
 	
-	public void addComponents(Routine routine, Component... components){
+	public void addComponents(Component... components){
 		for(Component c : components)
-			addComponent(routine, c);
+			addComponent(c);
 	}
 	
-	public void removeComponent(Routine routine, Class<? extends Component> c){
-		routine.removeComponentFromEntity(this, c);
+	public boolean hasComponent(Class<? extends Component> c){
+		return EntitySystem.es.entityHasComponent(this, c);
 	}
 	
-	public void removeAllPossibleComponents(Routine routine){
-		routine.removeComponentsFromEntity(this);
+	public void removeComponent(Class<? extends Component> c){
+		EntitySystem.es.removeComponentFromEntity(this, c);
+	}
+	
+	public void removeAllPossibleComponents(){
+		EntitySystem.es.removeComponentsFromEntity(this);
+	}
+	
+	public void removeAllPossibleComponents(Renderer context){
+		EntitySystem.es.removeComponentsFromEntity(this);
 	}
 	
 	protected void initializeID(int i){

@@ -26,12 +26,9 @@ public class EntitySystem {
 		context = new ThreadLocal<ThreadSafe>(){
 			protected ThreadSafe initialValue(){
 				return new ThreadSafe(){
-					@Override
-					public void onInit() {}
-					@Override
-					public void onPhaseStart() {}
-					@Override
-					public void assertDependency(Class<? extends Dependency> type) {}
+					@Override public void onInit() {}
+					@Override public void onPhaseStart() {}
+					@Override public void assertDependency(Class<? extends Dependency> type) {}
 				};
 			}
 		};

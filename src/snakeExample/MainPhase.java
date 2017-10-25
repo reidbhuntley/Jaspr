@@ -12,8 +12,9 @@ public class MainPhase extends GamePhase {
 	public MainPhase() {
 		super();
 		renderer = new RenderRoutine();
-		routines = new Routine[1];
+		routines = new Routine[2];
 		routines[0] = new LogicRoutine();
+		routines[1] = new QuitRoutine();
 	}
 
 	@Override

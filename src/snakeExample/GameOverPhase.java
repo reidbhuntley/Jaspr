@@ -12,7 +12,7 @@ public class GameOverPhase extends GamePhase {
 
 	@Override
 	public Routine[] routines() {
-		Routine[] r = {new RestartRoutine()};
+		Routine[] r = {new RestartRoutine(), new QuitRoutine()};
 		return r;
 	}
 

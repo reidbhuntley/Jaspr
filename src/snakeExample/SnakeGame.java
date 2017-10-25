@@ -1,9 +1,12 @@
 package snakeExample;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
+import engine.AssetManager;
 import engine.EntitySystem;
 import engine.GameManager;
+import engine.GameWindow;
 
 public class SnakeGame {
 	
@@ -19,7 +22,8 @@ public class SnakeGame {
 		testSys.registerGlobalComponent(new SnakeLength(START_LENGTH));
 		testSys.registerGlobalComponent(new HeadDist(0.0));
 		GameManager game = new GameManager(TICKS_PER_SECOND * FRAMES_PER_TICK, new MainPhase());
-		game.addEntitySystem(testSys);
+		game.assignEntitySystem(testSys);
+		game.assignGameWindow(new GameWindow(WINDOW_WIDTH/GRID_WIDTH*GRID_WIDTH, WINDOW_HEIGHT/GRID_HEIGHT*GRID_HEIGHT));
 		game.start();
 	}
 	

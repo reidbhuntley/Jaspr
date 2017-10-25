@@ -1,4 +1,7 @@
 package engine;
+
+import java.awt.Graphics2D;
+
 public abstract class Renderer extends ThreadSafe {
 	
 	@Override
@@ -6,6 +9,6 @@ public abstract class Renderer extends ThreadSafe {
 		return;
 	}
 	
-	public abstract void render();
+	public abstract void render(Graphics2D g);
 	
 }

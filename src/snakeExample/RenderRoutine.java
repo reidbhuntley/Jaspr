@@ -8,19 +8,15 @@ import java.awt.RenderingHints;
 import java.awt.geom.Arc2D;
 
 import engine.Entity;
-import engine.GameWindow;
 import engine.Renderer;
 
 public class RenderRoutine extends Renderer {
-
-	private static GameWindow window;
 	
 	@Override
-	public void render() {
+	public void render(Graphics2D g) {
 		double dDist = (double) es.readGlobalComponent(HeadDist.class).dist;
-		Graphics2D g = window.getStrategyGraphics();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.clearRect(0, 0, window.getWidth(), window.getHeight());
+		g.clearRect(0, 0, SnakeGame.WINDOW_WIDTH, SnakeGame.WINDOW_HEIGHT);
 		g.scale(boxScaleX(), boxScaleY());
 		for(Entity e : es.getAllEntitiesPossessing(Position.class, BoxColor.class)){
 			Position pos = e.getAs(Position.class);
@@ -76,21 +72,19 @@ public class RenderRoutine extends Renderer {
 		g.setFont(new Font("Calibri", Font.PLAIN, 30));
 		g.scale(1/boxScaleX(), 1/boxScaleY());
 		g.drawString("SCORE: " + score , 4, 34);
-		g.dispose();
-		window.showStrategy();
 	}
 	
 	private static double boxScaleX(){
-		return (window.getParent().getWidth() / SnakeGame.GRID_WIDTH);
+		return (SnakeGame.WINDOW_WIDTH / SnakeGame.GRID_WIDTH);
 	}
 	
 	private static double boxScaleY(){
-		return (window.getParent().getHeight() / SnakeGame.GRID_HEIGHT);
+		return (SnakeGame.WINDOW_HEIGHT / SnakeGame.GRID_HEIGHT);
 	}
 
 	@Override
 	public void onInit() {
-		window = new GameWindow(SnakeGame.WINDOW_WIDTH,SnakeGame.WINDOW_HEIGHT); 
+		
 	}
 
 	@Override

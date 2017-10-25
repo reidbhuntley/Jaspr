@@ -1,5 +1,6 @@
 package engine;
 
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,6 +17,7 @@ public class GameManager {
 	private GamePhase currentPhase;
 	private ExecutorService executor;
 	private EntitySystem es;
+	private GameWindow window;
 	private boolean newPhase, quit;
 	//private List<Event> events;
 	private long t;
@@ -36,6 +38,9 @@ public class GameManager {
 			return;
 		quit = false;
 		
+		if(es == null)
+			throw new IllegalStateException("This GameManager must have an EntitySystem assigned to it before starting");
+		
 	    long currentTime = System.nanoTime(), accumulator = 0;
 	    currentPhase.renderer().onInit();
 	    while (!quit){
@@ -53,11 +58,13 @@ public class GameManager {
 	        }
 	        
 	        Renderer r = currentPhase.renderer();
-	        if(r != null){
+	        if(window != null && r != null){
 	        	r.prepareForProcessing(this, es);
-	        	r.render();
+	        	window.assignRenderer(r);
+	        	window.render();
 	        }
 	    }
+		window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 	}
 	
 	private void processPhase() throws InterruptedException, ExecutionException{
@@ -100,8 +107,12 @@ public class GameManager {
 		}
 	}
 	
-	public void addEntitySystem(EntitySystem entitySystem){
+	public void assignEntitySystem(EntitySystem entitySystem){
 		es = entitySystem;
+	}
+	
+	public void assignGameWindow(GameWindow window){
+		this.window = window;
 	}
 	
 	public void setPhase(GamePhase phase) {

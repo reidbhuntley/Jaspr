@@ -16,6 +16,7 @@ public class RenderRoutine extends Renderer {
 	public void render(Graphics2D g) {
 		double dDist = (double) es.readGlobalComponent(HeadDist.class).dist;
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setBackground(new Color(51, 204, 255));
 		g.clearRect(0, 0, SnakeGame.WINDOW_WIDTH, SnakeGame.WINDOW_HEIGHT);
 		g.scale(boxScaleX(), boxScaleY());
 		for(Entity e : es.getAllEntitiesPossessing(Position.class, BoxColor.class)){
@@ -68,10 +69,12 @@ public class RenderRoutine extends Renderer {
 			}
 		}
 		int score = (es.readGlobalComponent(SnakeLength.class).length - SnakeGame.START_LENGTH)*100;
-		g.setColor(Color.BLACK);
-		g.setFont(new Font("Calibri", Font.PLAIN, 30));
-		g.scale(1/boxScaleX(), 1/boxScaleY());
-		g.drawString("SCORE: " + score , 4, 34);
+		if(SnakeGame.WINDOW_WIDTH >= 200){
+			g.setColor(Color.BLACK);
+			g.setFont(new Font("Calibri", Font.PLAIN, 30));
+			g.scale(1/boxScaleX(), 1/boxScaleY());
+			g.drawString("SCORE: " + score , 4, 24);
+		}
 	}
 	
 	private static double boxScaleX(){

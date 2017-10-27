@@ -1,5 +1,6 @@
 package snakeExample;
 
+import engine.AssetManager;
 import engine.GamePhase;
 import engine.Renderer;
 import engine.Routine;
@@ -15,6 +16,7 @@ public class MainPhase extends GamePhase {
 		routines = new Routine[2];
 		routines[0] = new LogicRoutine();
 		routines[1] = new QuitRoutine();
+		AssetManager.playSound(SnakeGame.SOUND_START);
 	}
 
 	@Override

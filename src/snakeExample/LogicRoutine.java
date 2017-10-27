@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-
+import engine.AssetManager;
 import engine.Dependency;
 import engine.Entity;
 import engine.KeylogManager;
@@ -109,6 +109,7 @@ public class LogicRoutine extends Routine {
 					snakeLength.length++;
 					e.removeAllPossibleComponents();
 					spawnApple(posList);
+					AssetManager.playSound(SnakeGame.SOUND_APPLE);
 					break;
 				}
 			}

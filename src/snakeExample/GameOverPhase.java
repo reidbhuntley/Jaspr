@@ -1,15 +1,14 @@
 package snakeExample;
 
-import engine.AssetManager;
-import engine.GamePhase;
-import engine.Renderer;
-import engine.Routine;
+import core.GamePhase;
+import core.Renderer;
+import core.Routine;
 
 public class GameOverPhase extends GamePhase {
 
 	public GameOverPhase() {
 		super();
-		AssetManager.playSound(SnakeGame.SOUND_DEATH);
+		SnakeGame.sounds.playSound(SnakeGame.SOUND_DEATH);
 	}
 
 	@Override

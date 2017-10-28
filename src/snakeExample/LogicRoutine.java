@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import engine.AssetManager;
-import engine.Dependency;
-import engine.Entity;
-import engine.KeylogManager;
-import engine.Routine;
+
+import core.Dependency;
+import core.Entity;
+import core.KeylogManager;
+import core.Routine;
 
 public class LogicRoutine extends Routine {
 	private static final int[] KEYS = {KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_UP, KeyEvent.VK_DOWN};
@@ -111,7 +111,7 @@ public class LogicRoutine extends Routine {
 					snakeLength.length++;
 					e.removeAllPossibleComponents();
 					spawnApple(posList);
-					AssetManager.playSound(SnakeGame.SOUND_APPLE);
+					SnakeGame.sounds.playSound(SnakeGame.SOUND_APPLE);
 					break;
 				}
 			}

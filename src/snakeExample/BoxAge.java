@@ -1,6 +1,6 @@
 package snakeExample;
 
-import engine.Component;
+import core.Component;
 
 public class BoxAge extends Component {
 	int age;

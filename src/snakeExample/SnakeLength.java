@@ -1,6 +1,6 @@
 package snakeExample;
 
-import engine.GlobalComponent;
+import core.GlobalComponent;
 
 public class SnakeLength extends GlobalComponent {
 	public int length;

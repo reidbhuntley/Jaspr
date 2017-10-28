@@ -1,4 +1,4 @@
-package engine;
+package core;
 
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;

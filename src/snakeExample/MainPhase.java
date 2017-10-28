@@ -1,10 +1,9 @@
 package snakeExample;
 
-import engine.AssetManager;
-import engine.GamePhase;
-import engine.Loop;
-import engine.Renderer;
-import engine.Routine;
+import assets.Loop;
+import core.GamePhase;
+import core.Renderer;
+import core.Routine;
 
 public class MainPhase extends GamePhase {
 	
@@ -18,8 +17,8 @@ public class MainPhase extends GamePhase {
 		routines = new Routine[2];
 		routines[0] = new LogicRoutine();
 		routines[1] = new QuitRoutine();
-		AssetManager.playSound(SnakeGame.SOUND_START);
-		music = AssetManager.getLoop(SnakeGame.SOUND_MUSIC);
+		SnakeGame.sounds.playSound(SnakeGame.SOUND_START);
+		music = SnakeGame.sounds.getLoop(SnakeGame.SOUND_MUSIC);
 		music.start();
 	}
 

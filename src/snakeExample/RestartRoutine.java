@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import engine.Dependency;
-import engine.KeylogManager;
-import engine.Routine;
+import core.Dependency;
+import core.KeylogManager;
+import core.Routine;
 
 public class RestartRoutine extends Routine {
 

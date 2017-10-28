@@ -1,4 +1,4 @@
-package engine;
+package core;
 
 import java.awt.Graphics2D;
 import java.awt.event.KeyAdapter;
@@ -25,7 +25,7 @@ public final class GameWindow extends JFrame {
 		addKeyListener(new KeylogReciever());
 		requestFocus();
 		
-		createBufferStrategy(2);
+		createBufferStrategy(3);
 		bs = getBufferStrategy();
     }
     

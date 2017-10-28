@@ -2,7 +2,7 @@ package snakeExample;
 
 import java.awt.Color;
 
-import engine.Component;
+import core.Component;
 
 public class BoxColor extends Component {
 	Color color;

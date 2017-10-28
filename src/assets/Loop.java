@@ -1,23 +1,24 @@
-package engine;
+package assets;
 
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 
 public class Loop {
 
-	private String filename;
+	private AudioInputStream stream;
 	private Clip clip;
 	private LineListener listener;
 	private boolean active;
 	
-	protected Loop(String filename){
-		this.filename = filename;
+	protected Loop(AudioInputStream stream){
+		this.stream = stream;
 		active = false;
 	}
 	
 	public void start() {
-		clip = AssetManager.getSound(filename);
+		clip = SoundsManager.prepareClip(stream);
 		active = true;
 		clip.start();
 		listener = new LineListener() {

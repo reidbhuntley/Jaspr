@@ -2,7 +2,7 @@ package snakeExample;
 
 import java.awt.Color;
 
-import engine.Entity;
+import core.Entity;
 
 public class SnakeBox extends Entity {
 	public SnakeBox(double x, double y, Color color, int age, int dir){

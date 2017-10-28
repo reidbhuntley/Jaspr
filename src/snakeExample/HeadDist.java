@@ -1,6 +1,6 @@
 package snakeExample;
 
-import engine.GlobalComponent;
+import core.GlobalComponent;
 
 public class HeadDist extends GlobalComponent {
 	public static final int DIGITS = 7;

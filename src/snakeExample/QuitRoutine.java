@@ -2,9 +2,9 @@ package snakeExample;
 
 import java.awt.event.KeyEvent;
 
-import engine.Dependency;
-import engine.KeylogManager;
-import engine.Routine;
+import core.Dependency;
+import core.KeylogManager;
+import core.Routine;
 
 public class QuitRoutine extends Routine {
 

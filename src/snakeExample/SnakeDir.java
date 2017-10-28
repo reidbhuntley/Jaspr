@@ -1,6 +1,6 @@
 package snakeExample;
 
-import engine.Component;
+import core.Component;
 
 public class SnakeDir extends Component {
 

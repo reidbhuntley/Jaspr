@@ -1,4 +1,4 @@
-package engine;
+package core;
 
 public abstract class Dependency {
 	public Dependency clone(){

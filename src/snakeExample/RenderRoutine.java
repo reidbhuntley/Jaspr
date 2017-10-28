@@ -9,13 +9,19 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
 
-import engine.AssetManager;
-import engine.Entity;
-import engine.Renderer;
+import core.Entity;
+import core.Renderer;
 
 public class RenderRoutine extends Renderer {
 	
 	private static Image bg, apple, frame;
+	
+	@Override
+	public void onInit() {
+		bg = SnakeGame.images.readImage("res\\images\\bg.jpg");
+		apple = SnakeGame.images.readImage("res\\images\\apple.png");
+		frame = SnakeGame.images.readImage("res\\images\\frame.png");
+	}
 	
 	@Override
 	public void render(Graphics2D g) {
@@ -122,13 +128,6 @@ public class RenderRoutine extends Renderer {
 	
 	private static double boxScaleY(){
 		return (SnakeGame.WINDOW_HEIGHT / (SnakeGame.GRID_HEIGHT+1));
-	}
-
-	@Override
-	public void onInit() {
-		bg = AssetManager.readImage("bg.jpg");
-		apple = AssetManager.readImage("apple.png");
-		frame = AssetManager.readImage("frame.png");
 	}
 
 	@Override

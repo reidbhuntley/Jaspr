@@ -9,12 +9,13 @@ import engine.GameWindow;
 
 public class SnakeGame {
 	
-	public static final int GRID_WIDTH = 7, GRID_HEIGHT = 7;
-	public static final int WINDOW_WIDTH = 900, WINDOW_HEIGHT = 900;
+	public static final int GRID_WIDTH = 6, GRID_HEIGHT = 6;
+	public static final int WINDOW_WIDTH_TEMP = 1000, WINDOW_HEIGHT_TEMP = 1000;
+	public static final int WINDOW_WIDTH = WINDOW_WIDTH_TEMP/GRID_WIDTH*GRID_WIDTH, WINDOW_HEIGHT = WINDOW_HEIGHT_TEMP/GRID_HEIGHT*GRID_HEIGHT;
 	public static final int START_LENGTH = 2;
-	public static final int TICKS_PER_SECOND = 8, FRAMES_PER_TICK = 50;
-	public static final int MAX_R = 102, MAX_G = 255, MAX_B = 51;
-	public static final String SOUND_START = "start.wav", SOUND_APPLE = "correct.wav", SOUND_DEATH = "death.wav";
+	public static final int TICKS_PER_SECOND = 7, FRAMES_PER_TICK = 50;
+	public static final int MAX_R = 66, MAX_G = 155, MAX_B = 244;
+	public static final String SOUND_START = "start.wav", SOUND_APPLE = "correct.wav", SOUND_DEATH = "death.wav", SOUND_MUSIC = "music.wav";
 	
 	public static void main(String[] args) throws IllegalAccessException, InterruptedException, ExecutionException {
 		AssetManager.preload();

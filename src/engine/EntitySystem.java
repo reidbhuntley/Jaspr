@@ -28,6 +28,7 @@ public class EntitySystem {
 				return new ThreadSafe(){
 					@Override public void onInit() {}
 					@Override public void onPhaseStart() {}
+					@Override public void onPhaseEnd() {}
 					@Override public void assertDependency(Class<? extends Dependency> type) {}
 				};
 			}

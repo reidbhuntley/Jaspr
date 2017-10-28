@@ -33,7 +33,7 @@ public abstract class Routine extends ThreadSafe implements Runnable {
 	@Override
 	public void assertDependency(Class<? extends Dependency> type){
 		if(!dependencies.contains(type))
-			throw new IllegalArgumentException("Dependency " + type.getClass() + " is not in this Routine's dependencies");
+			throw new IllegalArgumentException("Dependency " + type.getClass().getName() + " is not in this Routine's dependencies");
 	}
 	
 	public abstract void routine();

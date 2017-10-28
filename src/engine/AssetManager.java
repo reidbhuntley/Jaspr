@@ -73,6 +73,10 @@ public class AssetManager {
 		return null;
 	}
 	
+	public static Loop getLoop(String filename){
+		return new Loop(filename);
+	}
+	
 	public static void playSound(String filename){
 		Clip clip = getSound(filename);
 		if(clip != null)

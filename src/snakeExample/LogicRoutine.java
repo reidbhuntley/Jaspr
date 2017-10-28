@@ -28,11 +28,11 @@ public class LogicRoutine extends Routine {
 	public void onPhaseStart() {
 		lastKeyPressed = KeyEvent.VK_RIGHT;
 		es.registerGlobalComponent(new SnakeLength(SnakeGame.START_LENGTH));
-		for(Entity e : es.getAllEntitiesPossessing(Position.class, BoxColor.class))
+		for(Entity e : es.getAllEntitiesPossessing(Position.class))
 			e.removeAllPossibleComponents();
-		int startX = rng.nextInt(SnakeGame.GRID_WIDTH), startY = rng.nextInt(SnakeGame.GRID_HEIGHT);
-		new SnakeBox(startX, startY, new Color(SnakeGame.MAX_R, SnakeGame.MAX_G, SnakeGame.MAX_B), 0, SnakeDir.RIGHT);
-		spawnApple(Arrays.asList(new Position(startX, startY)));
+		int startY = rng.nextInt(SnakeGame.GRID_HEIGHT);
+		new SnakeBox(0, startY, new Color(SnakeGame.MAX_R, SnakeGame.MAX_G, SnakeGame.MAX_B), 0, SnakeDir.RIGHT);
+		spawnApple(Arrays.asList(new Position(0, startY)));
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class LogicRoutine extends Routine {
 			return;
 
 		Entity head = null;
-		List<Entity> entList = es.getAllEntitiesPossessing();
+		List<Entity> entList = es.getAllEntitiesPossessing(Position.class, BoxAge.class, BoxColor.class);
 		List<Position> posList = new ArrayList<>();
 		
 		es.getGlobalComponent(HeadDist.class).reset();
@@ -90,13 +90,15 @@ public class LogicRoutine extends Routine {
 			case KeyEvent.VK_DOWN:
 				y++; dir = SnakeDir.DOWN; KEYS_TO_CHECK[2] = -1; break;
 			}
+			/*
 			x %= SnakeGame.GRID_WIDTH;
 			y %= SnakeGame.GRID_HEIGHT;
 			if(x < 0) x += SnakeGame.GRID_WIDTH;
 			if(y < 0) y += SnakeGame.GRID_HEIGHT;
+			*/
 			Position newPos = new Position(x,y);
 			
-			if(/*x < 0 || y < 0 || x >= SnakeGame.GRID_WIDTH || y >= SnakeGame.GRID_HEIGHT ||*/ posList.contains(newPos)){
+			if(x < 0 || y < 0 || x >= SnakeGame.GRID_WIDTH || y >= SnakeGame.GRID_HEIGHT || posList.contains(newPos)){
 				gm.setPhase(new GameOverPhase());
 				return;
 			}
@@ -104,8 +106,8 @@ public class LogicRoutine extends Routine {
 			new SnakeBox(x, y, new Color(SnakeGame.MAX_R,SnakeGame.MAX_G,SnakeGame.MAX_B),0,dir);
 			posList.add(newPos);
 			
-			for(Entity e : es.getAllEntitiesPossessing(Position.class, BoxColor.class)){
-				if(e.getAs(BoxColor.class).color.getRed() == 255 && e.getAs(Position.class).equals(newPos)){
+			for(Entity e : es.getAllEntitiesPossessing(Position.class)){
+				if(e.hasComponent(AppleComponent.class) && e.getAs(Position.class).equals(newPos)){
 					snakeLength.length++;
 					e.removeAllPossibleComponents();
 					spawnApple(posList);
@@ -128,14 +130,23 @@ public class LogicRoutine extends Routine {
 				}
 			}
 		}
-		new Entity(new BoxColor(Color.RED), emptyPos.get(rng.nextInt(emptyPos.size())));
+		if(emptyPos.size() == 0)
+			gm.setPhase(new GameOverPhase());
+		else
+			new Entity(new AppleComponent(), emptyPos.get(rng.nextInt(emptyPos.size())));
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Class<? extends Dependency>[] dependencies() {
-		Class[] d = {Position.class, BoxAge.class, BoxColor.class, SnakeLength.class, SnakeDir.class, HeadDist.class};
+		Class[] d = {Position.class, BoxAge.class, BoxColor.class, AppleComponent.class, SnakeLength.class, SnakeDir.class, HeadDist.class};
 		return d;
+	}
+
+	@Override
+	public void onPhaseEnd() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

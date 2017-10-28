@@ -25,4 +25,10 @@ public class QuitRoutine extends Routine {
 	@Override
 	public void onPhaseStart() {}
 
+	@Override
+	public void onPhaseEnd() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

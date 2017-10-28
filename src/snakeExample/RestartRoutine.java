@@ -24,6 +24,7 @@ public class RestartRoutine extends Routine {
 		 KEYS_TO_EXCLUDE.add(KeyEvent.VK_RIGHT);
 		 KEYS_TO_EXCLUDE.add(KeyEvent.VK_UP);
 		 KEYS_TO_EXCLUDE.add(KeyEvent.VK_DOWN);
+		 KEYS_TO_EXCLUDE.add(KeyEvent.VK_ESCAPE);
 	}
 
 	@Override
@@ -35,6 +36,12 @@ public class RestartRoutine extends Routine {
 
 	@Override
 	public void onPhaseStart() {
+	}
+
+	@Override
+	public void onPhaseEnd() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

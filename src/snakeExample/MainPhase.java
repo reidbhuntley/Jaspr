@@ -2,6 +2,7 @@ package snakeExample;
 
 import engine.AssetManager;
 import engine.GamePhase;
+import engine.Loop;
 import engine.Renderer;
 import engine.Routine;
 
@@ -9,6 +10,7 @@ public class MainPhase extends GamePhase {
 	
 	private Renderer renderer;
 	private Routine[] routines;
+	private Loop music;
 
 	public MainPhase() {
 		super();
@@ -17,6 +19,8 @@ public class MainPhase extends GamePhase {
 		routines[0] = new LogicRoutine();
 		routines[1] = new QuitRoutine();
 		AssetManager.playSound(SnakeGame.SOUND_START);
+		music = AssetManager.getLoop(SnakeGame.SOUND_MUSIC);
+		music.start();
 	}
 
 	@Override
@@ -26,7 +30,7 @@ public class MainPhase extends GamePhase {
 
 	@Override
 	public void onQuit() {
-		//System.out.println("SCORE: " + (EntitySystem.readGlobalComponent(SnakeLength.class).length - SnakeGame.START_LENGTH)*100);
+		music.stop();
 	}
 
 	@Override

@@ -14,7 +14,7 @@ import java.util.concurrent.Future;
 
 public class GameManager {
 	
-	private GamePhase currentPhase;
+	private GamePhase currentPhase, oldPhase;
 	private ExecutorService executor;
 	private EntitySystem es;
 	private GameWindow window;
@@ -105,6 +105,12 @@ public class GameManager {
 			}
 			
 		}
+		if(newPhase){
+			for(Routine r : oldPhase.getRoutines()){
+				r.onPhaseEnd();
+			}
+			oldPhase.renderer().onPhaseEnd();
+		}
 	}
 	
 	public void assignEntitySystem(EntitySystem entitySystem){
@@ -118,6 +124,7 @@ public class GameManager {
 	public void setPhase(GamePhase phase) {
 		if(currentPhase != null)
 			currentPhase.onQuit();
+		oldPhase = currentPhase;
 		currentPhase = phase;
 		//events.addAll(phase.getEvents());
 		newPhase = true;

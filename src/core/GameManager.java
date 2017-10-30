@@ -1,6 +1,5 @@
 package core;
 
-import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,23 +16,26 @@ public class GameManager {
 	private GamePhase currentPhase, oldPhase;
 	private ExecutorService executor;
 	private EntitySystem es;
-	private GameWindow window;
 	private boolean newPhase, quit;
 	//private List<Event> events;
 	private long t;
 	private final long dt;
+	private double actualFps;
+	private GameWindow window;
 	
-	public GameManager(long targetFps, GamePhase startPhase){
+	public GameManager(long targetFps){
 		executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
 		newPhase = false;
 		quit = true;
 		t = 0;
 		dt = (long) (Math.pow(10,9)/targetFps);
 		//events = new ArrayList<>();
-		setPhase(startPhase);
 	}
 	
 	public void start() throws InterruptedException, ExecutionException{
+		if(currentPhase == null)
+			throw new IllegalStateException("The GameManager can't start without being set to a GamePhase");
+		
 		if(!quit)
 			return;
 		quit = false;
@@ -46,6 +48,7 @@ public class GameManager {
 	    while (!quit){
 	       	long newTime = System.nanoTime();
 	        long frameTime = newTime - currentTime;
+	        actualFps = 1000000000.0/((double)frameTime);
 	        if(frameTime < dt)
 	        	Thread.sleep((dt - frameTime)/1000000);
 	        currentTime = newTime;
@@ -61,10 +64,10 @@ public class GameManager {
 	        if(window != null && r != null){
 	        	r.prepareForProcessing(this, es);
 	        	window.assignRenderer(r);
-	        	window.render();
+	        	window.display();
 	        }
 	    }
-		window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+		window.close();
 	}
 	
 	private void processPhase() throws InterruptedException, ExecutionException{
@@ -150,6 +153,10 @@ public class GameManager {
 	
 	public long t(){
 		return t;
+	}
+	
+	public double actualFps(){
+		return actualFps;
 	}
 	
 }

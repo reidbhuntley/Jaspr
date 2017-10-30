@@ -18,7 +18,7 @@ public class Loop {
 	}
 	
 	public void start() {
-		clip = SoundsManager.prepareClip(stream);
+		clip = SoundManager.prepareClip(stream);
 		active = true;
 		clip.start();
 		listener = new LineListener() {

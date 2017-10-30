@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-public class ImagesManager extends AssetType<BufferedImage>{
+public class ImageManager extends AssetType<BufferedImage>{
 	
 	public BufferedImage readImage(String filename) {
 		BufferedImage bi = assets().get(filename);

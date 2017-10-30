@@ -1,6 +1,7 @@
 package core;
 
-import java.awt.Graphics2D;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.glu.GLU;
 
 public abstract class Renderer extends ThreadSafe {
 	
@@ -9,6 +10,6 @@ public abstract class Renderer extends ThreadSafe {
 		return;
 	}
 	
-	public abstract void render(Graphics2D g);
+	public abstract void render(GLAutoDrawable drawable, GLU glu);
 	
 }

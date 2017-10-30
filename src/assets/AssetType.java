@@ -14,6 +14,8 @@ public abstract class AssetType<T> {
 	
 	public void preload(){
 		File dir = directory();
+		if(dir == null)
+			throw new IllegalStateException("directory() method in class "+getClass().getName()+" must return a directory File");
 		if(!dir.isDirectory()){
 			throw new IllegalStateException("directory() method in class "+getClass().getName()+" must return a directory File");
 		}

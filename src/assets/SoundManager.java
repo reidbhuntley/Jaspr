@@ -10,7 +10,7 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-public class SoundsManager extends AssetType<AudioInputStream> {
+public class SoundManager extends AssetType<AudioInputStream> {
 
 	public Clip getSound(String filename) {
 		AudioInputStream stream = assets().get(filename);

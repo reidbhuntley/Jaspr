@@ -62,11 +62,11 @@ public class GameManager {
 	        
 	        Renderer r = currentPhase.renderer();
 	        if(window != null && r != null){
-	        	r.prepareForProcessing(this, es);
 	        	window.assignRenderer(r);
 	        	window.display();
 	        }
 	    }
+	    executor.shutdown();
 		window.close();
 	}
 	
@@ -75,7 +75,6 @@ public class GameManager {
 		List<Routine> routineQueue = new ArrayList<Routine>(currentPhase.getRoutines());
 		//routineQueue.addAll(events);
 		for(Routine r : routineQueue){
-			r.prepareForProcessing(this, es);
 			if(newPhase)
 				r.onPhaseStart();
 		}
@@ -91,11 +90,11 @@ public class GameManager {
 			}
 			for(Iterator<Routine> iter = routineQueue.iterator(); iter.hasNext();){
 				Routine r = iter.next();
+				r.setGame(this);
 				List<Class<? extends Dependency>> keySet = new ArrayList<>(routinesExecuting.keySet());
 				if(r.dependencies() != null){
 					List<Class<? extends Dependency>> dependencies = Arrays.asList(r.dependencies());
 					if(Collections.disjoint(keySet, dependencies)){
-						r.prepareForProcessing(this, es);
 						Future<?> future = executor.submit(r);
 						for(Class<? extends Dependency> c : dependencies)
 							routinesExecuting.put(c, future);

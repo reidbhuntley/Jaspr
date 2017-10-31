@@ -16,9 +16,11 @@ public class EntitySystem {
 	private HashMap<Class<? extends Component>, HashMap<Entity, Component>> componentTables;
 	private HashMap<Class<? extends GlobalComponent>, GlobalComponent> globalsTable;
 	private AtomicInteger nextAvailableID;
-	private ThreadLocal<ThreadSafe> context;
+	ThreadLocal<ThreadSafe> context;
 	
 	public EntitySystem(){
+		if(es == null)
+			es = this;
 		componentIndex = new ArrayList<>();
 		componentTables = new HashMap<>();
 		globalsTable = new HashMap<>();
@@ -34,11 +36,7 @@ public class EntitySystem {
 			}
 		};
 	}
-	
-	public void setAsDefault(){
-		es = this;
-	}
-	
+
 	protected void setContext(ThreadSafe context){
 		this.context.set(context);
 	}

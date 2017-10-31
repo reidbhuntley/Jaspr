@@ -8,7 +8,6 @@ public class MainPhase extends GamePhase{
 	
 	@Override
 	public Routine[] routines() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

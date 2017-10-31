@@ -8,6 +8,7 @@ public abstract class Routine extends ThreadSafe implements Runnable {
 	private static List<Class<? extends Routine>> initialized = new ArrayList<>();
 	
 	private List<Class<? extends Dependency>> dependencies;
+	private GameManager gm;
 	
 	public Routine(){
 		super();
@@ -26,14 +27,23 @@ public abstract class Routine extends ThreadSafe implements Runnable {
 	}
 	
 	public void run(){
-		es.setContext(this);
-		routine();
+		EntitySystem.es.setContext(this);
+		try {
+			routine();
+		} catch (RuntimeException e){
+			e.printStackTrace();
+			gm.quit();
+		}
 	}
 	
 	@Override
 	public void assertDependency(Class<? extends Dependency> type){
-		if(!dependencies.contains(type))
-			throw new IllegalArgumentException("Dependency " + type.getClass().getName() + " is not in this Routine's dependencies");
+		if(dependencies == null || !dependencies.contains(type))
+			throw new IllegalArgumentException("Dependency " + type.getName() + " is not in this Routine's dependencies");
+	}
+	
+	public void setGame(GameManager gm){
+		this.gm = gm;
 	}
 	
 	public abstract void routine();

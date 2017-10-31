@@ -11,10 +11,11 @@ public class Test3D {
 	
 	public static final int WINDOW_WIDTH = 900, WINDOW_HEIGHT = 900;
 	public static ModelManager models;
+	public static GameManager game;
+	public static EntitySystem es;
 	
 	public static void main(String[] args) throws InterruptedException, ExecutionException{
-		EntitySystem entSys = new EntitySystem();
-		entSys.setAsDefault();
+		es = new EntitySystem();
 		
 		models = new ModelManager();
 		models.preload();
@@ -23,12 +24,13 @@ public class Test3D {
 		new Entity(models.get("res\\models\\boots.obj"), new Position(20.0f,-10.0f,10.0f, 0,-80.0f,0));
 		new Entity(models.get("res\\models\\capricorn.obj"), new Position(20.0f,0,-100f, 0,180.0f,0));
 		
-		GameManager game = new GameManager(100);
-		game.assignEntitySystem(entSys);
+		game = new GameManager(100);
+		game.assignEntitySystem(es);
 		game.assignGameWindow(new GameWindow(WINDOW_WIDTH, WINDOW_HEIGHT));
 		game.setPhase(new MainPhase());
 		game.start();
 		
+		Thread.activeCount();
 	}
 	
 }

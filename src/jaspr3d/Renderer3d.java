@@ -18,7 +18,7 @@ public class Renderer3d extends Renderer {
 
 	public void render(GLAutoDrawable drawable, GLU glu) {
 		if (KeylogManager.pressed(KeyEvent.VK_ESCAPE))
-			gm.quit();
+			Test3D.game.quit();
 		if (KeylogManager.pressed(KeyEvent.VK_UP)){
 			x += 3*Math.cos(Math.toRadians((double)angle+90));
 			z -= 3*Math.sin(Math.toRadians((double)angle+90));
@@ -43,7 +43,7 @@ public class Renderer3d extends Renderer {
 
 		gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_LINE);
 
-		for (Entity e : es.getAllEntitiesPossessing(RawModel.class)) {
+		for (Entity e : Test3D.es.getAllEntitiesPossessing(RawModel.class)) {
 			gl.glPushMatrix();
 			if (e.hasComponent(Position.class)) {
 				Position pos = e.getAs(Position.class);

@@ -127,7 +127,6 @@ public class EntitySystem {
 		componentTables.get(c).remove(e);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void removeComponentsFromEntity(Entity e){
 		if(Routine.class.isAssignableFrom(context.get().getClass())){
 			for(Class<? extends Component> c : ((Routine) context.get()).dependencies()){

@@ -7,15 +7,15 @@ public abstract class Routine extends ThreadSafe implements Runnable {
 	
 	private static List<Class<? extends Routine>> initialized = new ArrayList<>();
 	
-	private List<Class<? extends Dependency>> dependencies;
+	private List<Class<? extends Component>> dependencies;
 	private GameManager gm;
 	
 	public Routine(){
 		super();
 		if(dependencies() != null){
 			dependencies = Arrays.asList(dependencies());
-			for(Class<? extends Dependency> c : dependencies){
-				if(!Dependency.class.isAssignableFrom(c))
+			for(Class<? extends Component> c : dependencies){
+				if(!Component.class.isAssignableFrom(c))
 					throw new IllegalArgumentException("Classes in this Routine's dependencies must be child classes of Dependency");
 			}
 		}
@@ -37,7 +37,7 @@ public abstract class Routine extends ThreadSafe implements Runnable {
 	}
 	
 	@Override
-	public void assertDependency(Class<? extends Dependency> type){
+	public void assertDependency(Class<? extends Component> type){
 		if(dependencies == null || !dependencies.contains(type))
 			throw new IllegalArgumentException("Dependency " + type.getName() + " is not in this Routine's dependencies");
 	}
@@ -47,6 +47,6 @@ public abstract class Routine extends ThreadSafe implements Runnable {
 	}
 	
 	public abstract void routine();
-	public abstract Class<? extends Dependency>[] dependencies();
+	public abstract Class<? extends Component>[] dependencies();
 	
 }

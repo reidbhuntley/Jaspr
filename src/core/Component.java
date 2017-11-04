@@ -1,5 +1,7 @@
 package core;
 
-public class Component extends Dependency {
-
+public abstract class Component {
+	public Component clone(){
+		return null;
+	}
 }

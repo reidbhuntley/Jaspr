@@ -82,21 +82,21 @@ public class GameManager {
 			currentPhase.renderer().onPhaseStart();
 		newPhase = false;
 		
-		HashMap<Class<? extends Dependency>, Future<?>> routinesExecuting = new HashMap<>();
+		HashMap<Class<? extends Component>, Future<?>> routinesExecuting = new HashMap<>();
 		while(routineQueue.size() > 0 || routinesExecuting.size() > 0){
-			for(Iterator<Class<? extends Dependency>> iter = routinesExecuting.keySet().iterator(); iter.hasNext();){
+			for(Iterator<Class<? extends Component>> iter = routinesExecuting.keySet().iterator(); iter.hasNext();){
 				if(routinesExecuting.get(iter.next()).get() == null)
 					iter.remove();
 			}
 			for(Iterator<Routine> iter = routineQueue.iterator(); iter.hasNext();){
 				Routine r = iter.next();
 				r.setGame(this);
-				List<Class<? extends Dependency>> keySet = new ArrayList<>(routinesExecuting.keySet());
+				List<Class<? extends Component>> keySet = new ArrayList<>(routinesExecuting.keySet());
 				if(r.dependencies() != null){
-					List<Class<? extends Dependency>> dependencies = Arrays.asList(r.dependencies());
+					List<Class<? extends Component>> dependencies = Arrays.asList(r.dependencies());
 					if(Collections.disjoint(keySet, dependencies)){
 						Future<?> future = executor.submit(r);
-						for(Class<? extends Dependency> c : dependencies)
+						for(Class<? extends Component> c : dependencies)
 							routinesExecuting.put(c, future);
 						iter.remove();
 					}

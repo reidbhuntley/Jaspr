@@ -14,7 +14,6 @@ public class EntitySystem {
 	protected static EntitySystem es;
 	private List<Class<? extends Component>> componentIndex;
 	private HashMap<Class<? extends Component>, HashMap<Entity, Component>> componentTables;
-	private HashMap<Class<? extends GlobalComponent>, GlobalComponent> globalsTable;
 	private AtomicInteger nextAvailableID;
 	ThreadLocal<ThreadSafe> context;
 	
@@ -23,14 +22,13 @@ public class EntitySystem {
 			es = this;
 		componentIndex = new ArrayList<>();
 		componentTables = new HashMap<>();
-		globalsTable = new HashMap<>();
 		nextAvailableID = new AtomicInteger(1);
 		context = new ThreadLocal<ThreadSafe>(){
 			protected ThreadSafe initialValue(){
 				return new ThreadSafe(){
 					@Override public void onInit() {}
 					@Override public void onPhaseEnd() {}
-					@Override public void assertDependency(Class<? extends Dependency> type) {}
+					@Override public void assertDependency(Class<? extends Component> type) {}
 					@Override public void onPhaseStart() {}
 				};
 			}
@@ -53,23 +51,9 @@ public class EntitySystem {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected <T extends GlobalComponent> T getGlobalComponentUnsafe(Class<T> type) {
-		if(!globalsTable.containsKey(type))
-			throw new IllegalArgumentException("The GlobalComponent of type " + type + " has not yet been registered");
-		return (T) globalsTable.get(type);
-	}
-	
-	@SuppressWarnings("unchecked")
 	public <T extends Component> T readComponent(Entity e, Class<T> type){
 		HashMap<Entity, ? extends Component> table = componentTables.get(type);
-		Dependency result = table.get(e).clone();
-		assertClone(result, type);
-		return (T) result;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public <T extends GlobalComponent> T readGlobalComponent(Class<T> type) {
-		Dependency result = getGlobalComponentUnsafe(type).clone();
+		Component result = table.get(e).clone();
 		assertClone(result, type);
 		return (T) result;
 	}
@@ -77,7 +61,7 @@ public class EntitySystem {
 	public <T extends Component> HashMap<Entity, Component> readComponentTable(Class<T> type) {
 		HashMap<Entity, Component> old = componentTables.get(type), out = new HashMap<>();
 		for(Entity e : old.keySet()){
-			Dependency c = old.get(e).clone();
+			Component c = old.get(e).clone();
 			assertClone(c, type);
 			out.put(e, (Component) c);
 		}
@@ -131,11 +115,6 @@ public class EntitySystem {
 		return componentIndex.toArray(new Class[0]);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public Class<? extends GlobalComponent>[] globalComponentTypes(){
-		return globalsTable.keySet().toArray(new Class[0]);
-	}
-	
 	public void addComponentToEntity(Entity e, Component component){
 		context.get().assertDependency(component.getClass());
 		Class<? extends Component> componentClass = component.getClass();
@@ -151,22 +130,15 @@ public class EntitySystem {
 	@SuppressWarnings("unchecked")
 	public void removeComponentsFromEntity(Entity e){
 		if(Routine.class.isAssignableFrom(context.get().getClass())){
-			for(Class<? extends Dependency> c : ((Routine) context.get()).dependencies()){
+			for(Class<? extends Component> c : ((Routine) context.get()).dependencies()){
 				if(Component.class.isAssignableFrom(c))
 					removeComponentFromEntity(e, (Class<? extends Component>) c);
 			}
 		} else {
-			for(Class<? extends Dependency> c : componentTables.keySet())
+			for(Class<? extends Component> c : componentTables.keySet())
 				removeComponentFromEntity(e, (Class<? extends Component>) c);
 		}
 	}
-	
-	
-	public void registerGlobalComponent(GlobalComponent c){
-		context.get().assertDependency(c.getClass());
-		globalsTable.put(c.getClass(), c);
-	}
-	
 	
 	@SuppressWarnings("unchecked")
 	public <T extends Component> T getComponent(Entity e, Class<T> type){
@@ -176,13 +148,7 @@ public class EntitySystem {
 		return  (T) table.get(e);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public <T extends GlobalComponent> T getGlobalComponent(Class<T> type){
-		context.get().assertDependency(type);
-		return (T) globalsTable.get(type);
-	}
-	
-	protected static void assertClone(Dependency dependency, Class<? extends Dependency> type){
+	protected static void assertClone(Component dependency, Class<? extends Component> type){
 		if(dependency == null)
 			throw new IllegalArgumentException("Class "+type+" must override the clone() method in order to be read-only");
 		if(dependency.getClass() != type)

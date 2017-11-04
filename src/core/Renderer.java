@@ -6,7 +6,7 @@ import com.jogamp.opengl.glu.GLU;
 public abstract class Renderer extends ThreadSafe {
 	
 	@Override
-	public void assertDependency(Class<? extends Dependency> type){
+	public void assertDependency(Class<? extends Component> type){
 		return;
 	}
 	

@@ -1,4 +1,4 @@
-package jaspr3d;
+package demo3d;
 
 import core.GamePhase;
 import core.Routine;
@@ -7,7 +7,8 @@ public class MainPhase extends GamePhase{
 	
 	@Override
 	public Routine[] routines() {
-		return null;
+		Routine[] routines = {new MovementRoutine()};
+		return routines;
 	}
 
 	@Override

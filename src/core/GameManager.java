@@ -23,7 +23,10 @@ public class GameManager {
 	private double actualFps;
 	private GameWindow window;
 	
-	public GameManager(long targetFps){
+	public GameManager(long targetFps, EntitySystem entitySystem, GameWindow window){
+		es = entitySystem;
+		this.window = window;
+		window.assignEntitySystem(es);
 		executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
 		newPhase = false;
 		quit = true;
@@ -107,14 +110,6 @@ public class GameManager {
 				r.onPhaseEnd();
 			}
 		}
-	}
-	
-	public void assignEntitySystem(EntitySystem entitySystem){
-		es = entitySystem;
-	}
-	
-	public void assignGameWindow(GameWindow window){
-		this.window = window;
 	}
 	
 	public void setPhase(GamePhase phase) {

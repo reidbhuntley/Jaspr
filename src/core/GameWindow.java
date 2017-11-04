@@ -20,6 +20,7 @@ public final class GameWindow implements GLEventListener {
 
 	private Renderer renderer;
 	private ModelManager models;
+	private EntitySystem es;
 	private JFrame window;
 	private GLCanvas canvas;
 	private GLU glu;
@@ -53,6 +54,10 @@ public final class GameWindow implements GLEventListener {
 		window.setVisible(true);
 		canvas.display();
 	}
+	
+	protected void assignEntitySystem(EntitySystem es){
+		this.es = es;
+	}
 
 	public void close() {
 		window.dispose();
@@ -62,8 +67,8 @@ public final class GameWindow implements GLEventListener {
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		GL3 gl = drawable.getGL().getGL3();
-		if(renderer != null)
-			renderer.render(gl, glu);
+		if(renderer != null && es != null)
+			renderer.render(gl, glu, es);
 	}
 
 	@Override

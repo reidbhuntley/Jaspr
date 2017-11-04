@@ -1,66 +1,52 @@
 package jaspr3d;
 
-import java.awt.event.KeyEvent;
-
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.glu.GLU;
 
 import core.Entity;
-import core.KeylogManager;
+import core.EntitySystem;
+import demo3d.Test3D;
 import jaspr3d.shaders.StaticShader;
 
 public class Renderer {
 
 	// private static final int WIDTH = Test3D.WINDOW_WIDTH, HEIGHT =
 	// Test3D.WINDOW_HEIGHT;
-	private static final float FOV = 70;
-	private static final float NEAR_PLANE = 0.1f;
-	private static final float FAR_PLANE = 1000;
+	private final float FOV;
+	private final float NEAR_PLANE;
+	private final float FAR_PLANE;
 
 	private static StaticShader shader;
 	
+	public Renderer(float fov, float nearPlane, float farPlane){
+		FOV = fov;
+		NEAR_PLANE = nearPlane;
+		FAR_PLANE = farPlane;
+	}
+	
 	public void init(GL3 gl){
-		
+		shader = new StaticShader(gl);
+		shader.start();
+		shader.loadProjectionMatrix(
+				createProjectionMatrix(Test3D.WINDOW_WIDTH, Test3D.WINDOW_HEIGHT, FOV, NEAR_PLANE, FAR_PLANE));
+		shader.stop();
 	}
 	
 	public void dispose(GL3 gl){
 		shader.cleanUp();
 	}
 
-	public void render(GL3 gl, GLU glu) {
-		if (KeylogManager.pressed(KeyEvent.VK_ESCAPE))
-			Test3D.game.quit();
-		/*
-		 * if (KeylogManager.pressed(KeyEvent.VK_UP)){ x +=
-		 * 3*Math.cos(Math.toRadians((double)angle+90)); z -=
-		 * 3*Math.sin(Math.toRadians((double)angle+90)); } if
-		 * (KeylogManager.pressed(KeyEvent.VK_DOWN)){ x -=
-		 * 3*Math.cos(Math.toRadians((double)angle+90)); z +=
-		 * 3*Math.sin(Math.toRadians((double)angle+90)); } if
-		 * (KeylogManager.pressed(KeyEvent.VK_LEFT)) angle += 3f; if
-		 * (KeylogManager.pressed(KeyEvent.VK_RIGHT)) angle -= 3f;
-		 */
-
-		if (shader == null) {
-			shader = new StaticShader(gl);
-			shader.start();
-			shader.loadProjectionMatrix(
-					createProjectionMatrix(Test3D.WINDOW_WIDTH, Test3D.WINDOW_HEIGHT, FOV, NEAR_PLANE, FAR_PLANE));
-			shader.stop();
-		}
-		
+	public void render(GL3 gl, GLU glu, EntitySystem es) {
 		shader.start();
 		
-		Camera camera = (Camera) Test3D.es.getFirstComponent(Camera.class);
-		if(camera != null){
+		Camera camera = (Camera) es.getFirstComponent(Camera.class);
+		if(camera != null)
 			shader.loadViewMatrix(camera.getTransformations());
-			camera.transform(0, 0, -0.05f, 0, 0, 0.5f);
-		}
 		
 		gl.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT);
 		gl.glPolygonMode(GL3.GL_FRONT_AND_BACK, GL3.GL_LINE);
 
-		for (Entity e : Test3D.es.getAllEntitiesPossessing(RawModel.class)) {
+		for (Entity e : es.getAllEntitiesPossessing(RawModel.class)) {
 			RawModel model = e.getAs(RawModel.class);
 			if (e.hasComponent(Position.class)) {
 				//e.getAs(Position.class).rotate(0, 0.5f, 0);
@@ -72,7 +58,6 @@ public class Renderer {
 		}
 		shader.stop();
 		gl.glFlush();
-		System.out.println(Test3D.game.actualFps());
 	}
 
 	private float[] createProjectionMatrix(int width, int height, float fov, float near_plane, float far_plane) {

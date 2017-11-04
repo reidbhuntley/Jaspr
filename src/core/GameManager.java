@@ -44,7 +44,6 @@ public class GameManager {
 			throw new IllegalStateException("This GameManager must have an EntitySystem assigned to it before starting");
 		
 	    long currentTime = System.nanoTime(), accumulator = 0;
-	    currentPhase.renderer().onInit();
 	    while (!quit){
 	       	long newTime = System.nanoTime();
 	        long frameTime = newTime - currentTime;
@@ -60,9 +59,7 @@ public class GameManager {
 	            t += dt;
 	        }
 	        
-	        Renderer r = currentPhase.renderer();
-	        if(window != null && r != null){
-	        	window.assignRenderer(r);
+	        if(window != null){
 	        	window.display();
 	        }
 	    }
@@ -78,8 +75,6 @@ public class GameManager {
 			if(newPhase)
 				r.onPhaseStart();
 		}
-		if(newPhase && currentPhase.renderer() != null)
-			currentPhase.renderer().onPhaseStart();
 		newPhase = false;
 		
 		HashMap<Class<? extends Component>, Future<?>> routinesExecuting = new HashMap<>();
@@ -111,7 +106,6 @@ public class GameManager {
 			for(Routine r : oldPhase.getRoutines()){
 				r.onPhaseEnd();
 			}
-			oldPhase.renderer().onPhaseEnd();
 		}
 	}
 	

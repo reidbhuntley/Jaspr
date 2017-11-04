@@ -47,10 +47,6 @@ public class Entity {
 		EntitySystem.es.removeComponentsFromEntity(this);
 	}
 	
-	public void removeAllPossibleComponents(Renderer context){
-		EntitySystem.es.removeComponentsFromEntity(this);
-	}
-	
 	protected void initializeID(int i){
 		if(id != 0)
 			throw new IllegalStateException("This entity already has an ID");

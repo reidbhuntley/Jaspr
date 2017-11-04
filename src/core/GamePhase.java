@@ -28,7 +28,6 @@ public abstract class GamePhase {
 	}*/
 	
 	public abstract Routine[] routines();
-	public abstract Renderer renderer();
 	public abstract void onQuit();
 	
 }

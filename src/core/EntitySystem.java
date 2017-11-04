@@ -2,6 +2,7 @@ package core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -108,6 +109,57 @@ public class EntitySystem {
 			return getAllEntitiesPossessing(((Routine)context.get()).dependencies());
 		else
 			return getAllEntitiesPossessing(componentTables.keySet().toArray(new Class[0]));
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Entity getFirstEntityPossessing(Class... classes){
+		List<Entity> out = new ArrayList<>();
+		List<Class> classesList = new ArrayList<Class>(Arrays.asList(classes));
+		for(Iterator<Class> iter = classesList.iterator(); iter.hasNext();){
+			if(!Component.class.isAssignableFrom(iter.next()))
+				iter.remove();
+		}
+		for(Class c : classesList){
+			c = (Class<? extends Component>) c;
+			context.get().assertDependency(c);
+			registerComponent(c);
+		}
+		Collections.sort(classesList, new Comparator<Class>() {
+			@Override
+			public int compare(Class c0, Class c1) {
+				return componentTables.get(c0).size() - componentTables.get(c1).size();
+			}
+		});
+		for(Class c : classesList){
+			if(out.size() == 0){
+				for(Entity e : componentTables.get(c).keySet())
+					out.add(e);
+			} else
+				out.retainAll(componentTables.get(c).keySet());
+			if(out.size() == 1)
+				return out.get(0);
+			if(out.size() == 0)
+				return null;
+		}
+		return out.get(0);
+	}
+	
+	public Component getFirstComponent(Class<? extends Component> type){
+		context.get().assertDependency(type);
+		HashMap<Entity,Component> table = componentTables.get(type);
+		if(table == null)
+			return null;
+		Collection<Component> values = table.values();
+		Component[] components = new Component[values.size()];
+		values.toArray(components);
+		return components[0];
+	}
+	
+	public Component readFirstComponent(Class<? extends Component> type){
+		Collection<Component> values = componentTables.get(type).values();
+		Component[] components = new Component[values.size()];
+		values.toArray(components);
+		return components[0].clone();
 	}
 	
 	@SuppressWarnings("unchecked")

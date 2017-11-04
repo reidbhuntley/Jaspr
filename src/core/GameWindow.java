@@ -14,6 +14,7 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 
 import jaspr3d.ModelManager;
+import jaspr3d.Renderer;
 
 public final class GameWindow implements GLEventListener {
 
@@ -22,34 +23,30 @@ public final class GameWindow implements GLEventListener {
 	private JFrame window;
 	private GLCanvas canvas;
 	private GLU glu;
-	private boolean open;
-	public final int width, height;
+	public final int WIDTH, HEIGHT;
 
-	public GameWindow(int width, int height) {
-		this.width = width;
-		this.height = height;
-		open = false;
+	public GameWindow(int width, int height, Renderer renderer, ModelManager models) {
+		WIDTH = width;
+		HEIGHT = height;
+		this.renderer = renderer;
+		this.models  = models;
 		
 		final GLProfile profile = GLProfile.get(GLProfile.GL3);
 		GLCapabilities capabilities = new GLCapabilities(profile);
 		canvas = new GLCanvas(capabilities);
+		canvas.addGLEventListener(this);
+		canvas.setSize(WIDTH, HEIGHT);
+		
 		window = new JFrame();
-	}
-	
-	public void open(){
-		if(!open){
-			open = true;
-			canvas.addGLEventListener(this);
-			canvas.setSize(width, height);
-			window.setUndecorated(true);
-			window.getContentPane().add(canvas);
-			window.pack();
-			window.setLocationRelativeTo(null);
-			window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			canvas.addKeyListener(new KeylogReciever());
-			canvas.requestFocus();
-			display();
-		}
+		window.setUndecorated(true);
+		window.getContentPane().add(canvas);
+		window.pack();
+		window.setLocationRelativeTo(null);
+		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		canvas.addKeyListener(new KeylogReciever());
+		canvas.requestFocus();
+
+		display();
 	}
 
 	protected void display() {
@@ -64,12 +61,16 @@ public final class GameWindow implements GLEventListener {
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
+		GL3 gl = drawable.getGL().getGL3();
 		if(renderer != null)
-			renderer.render(drawable, glu);
+			renderer.render(gl, glu);
 	}
 
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
+		GL3 gl = drawable.getGL().getGL3();
+		if(renderer != null)
+			renderer.dispose(gl);
 		if(models != null)
 			models.cleanUp();
 	}
@@ -82,6 +83,8 @@ public final class GameWindow implements GLEventListener {
 		gl.glEnable(GL3.GL_DEPTH_TEST);
 		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		
+		if(renderer != null)
+			renderer.init(gl);
 		if(models != null)
 			models.preload(gl);
 	}
@@ -94,14 +97,6 @@ public final class GameWindow implements GLEventListener {
 			height = 1; // prevent divide by zero
 		// Set the view port (display area) to cover the entire window
 		gl.glViewport(0, 0, width, height);
-	}
-
-	public void assignRenderer(Renderer renderer) {
-		this.renderer = renderer;
-	}
-	
-	public void assignModelManager(ModelManager models) {
-		this.models = models;
 	}
 
 	private class KeylogReciever extends KeyAdapter {

@@ -13,6 +13,7 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 
+import assets.TextureManager;
 import jaspr3d.ModelManager;
 import jaspr3d.Renderer;
 
@@ -20,17 +21,19 @@ public final class GameWindow implements GLEventListener {
 
 	private Renderer renderer;
 	private ModelManager models;
+	private TextureManager textures;
 	private EntitySystem es;
 	private JFrame window;
 	private GLCanvas canvas;
 	private GLU glu;
 	public final int WIDTH, HEIGHT;
 
-	public GameWindow(int width, int height, Renderer renderer, ModelManager models) {
+	public GameWindow(int width, int height, Renderer renderer, ModelManager models, TextureManager textures) {
 		WIDTH = width;
 		HEIGHT = height;
 		this.renderer = renderer;
 		this.models  = models;
+		this.textures = textures;
 		
 		final GLProfile profile = GLProfile.get(GLProfile.GL3);
 		GLCapabilities capabilities = new GLCapabilities(profile);
@@ -78,6 +81,8 @@ public final class GameWindow implements GLEventListener {
 			renderer.dispose(gl);
 		if(models != null)
 			models.cleanUp();
+		if(textures != null)
+			textures.cleanUp();
 	}
 
 	@Override
@@ -89,9 +94,11 @@ public final class GameWindow implements GLEventListener {
 		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		
 		if(renderer != null)
-			renderer.init(gl);
+			renderer.init(gl, WIDTH, HEIGHT);
 		if(models != null)
 			models.preload(gl);
+		if(textures != null)
+			textures.preload(gl);
 	}
 
 	@Override

@@ -27,7 +27,7 @@ public class MovementRoutine extends Routine {
 		Camera camera = (Camera) Test3D.es.getFirstComponent(Camera.class);
 		camera.transform(0, 0, -0.05f, 0, 0, 0.5f);
 		
-		System.out.println(Test3D.game.actualFps());
+		//System.out.println(Test3D.game.actualFps());
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

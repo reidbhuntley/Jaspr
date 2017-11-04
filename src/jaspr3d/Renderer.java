@@ -5,16 +5,14 @@ import com.jogamp.opengl.glu.GLU;
 
 import core.Entity;
 import core.EntitySystem;
-import demo3d.Test3D;
 import jaspr3d.shaders.StaticShader;
 
 public class Renderer {
 
-	// private static final int WIDTH = Test3D.WINDOW_WIDTH, HEIGHT =
-	// Test3D.WINDOW_HEIGHT;
 	private final float FOV;
 	private final float NEAR_PLANE;
 	private final float FAR_PLANE;
+	private int WIDTH, HEIGHT;
 
 	private static StaticShader shader;
 	
@@ -24,11 +22,13 @@ public class Renderer {
 		FAR_PLANE = farPlane;
 	}
 	
-	public void init(GL3 gl){
+	public void init(GL3 gl, int width, int height){
+		WIDTH = width;
+		HEIGHT = height;
 		shader = new StaticShader(gl);
 		shader.start();
 		shader.loadProjectionMatrix(
-				createProjectionMatrix(Test3D.WINDOW_WIDTH, Test3D.WINDOW_HEIGHT, FOV, NEAR_PLANE, FAR_PLANE));
+				createProjectionMatrix(WIDTH, HEIGHT, FOV, NEAR_PLANE, FAR_PLANE));
 		shader.stop();
 	}
 	
@@ -44,15 +44,18 @@ public class Renderer {
 			shader.loadViewMatrix(camera.getTransformations());
 		
 		gl.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT);
-		gl.glPolygonMode(GL3.GL_FRONT_AND_BACK, GL3.GL_LINE);
+		//gl.glPolygonMode(GL3.GL_FRONT_AND_BACK, GL3.GL_LINE);
 
 		for (Entity e : es.getAllEntitiesPossessing(RawModel.class)) {
 			RawModel model = e.getAs(RawModel.class);
 			if (e.hasComponent(Position.class)) {
-				//e.getAs(Position.class).rotate(0, 0.5f, 0);
 				shader.loadTransformationMatrix(e.getAs(Position.class).getTransformations());
 			}
 			gl.glBindVertexArray(model.getVaoID());
+			if(e.hasComponent(Texture.class)){
+				gl.glActiveTexture(GL3.GL_TEXTURE0);
+				gl.glBindTexture(GL3.GL_TEXTURE_2D, e.getAs(Texture.class).getID());
+			}
 			gl.glDrawElements(GL3.GL_TRIANGLES, model.getIndicesCount(), GL3.GL_UNSIGNED_INT, 0);
 			gl.glBindVertexArray(0);
 		}

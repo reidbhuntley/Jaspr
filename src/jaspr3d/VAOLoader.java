@@ -17,8 +17,8 @@ public class VAOLoader {
 		int vaoID = createVAO();
 		bindIndices(indices);
 		storeAttribute(0, vertices, 3);
-		//storeAttribute(1, normals, 3);
-		//storeAttribute(2, texCoords, 2);
+		storeAttribute(1, texCoords, 2);
+		//storeAttribute(2, normals, 3);
 		unbindVAO();
 		return new RawModel(vaoID, vertices.length / 3, indices.length);
 	}
@@ -61,7 +61,7 @@ public class VAOLoader {
 		gl.glBufferData(GL3.GL_ARRAY_BUFFER, 4*data.length, buffer, GL3.GL_STATIC_DRAW);
 		gl.glEnableVertexAttribArray(attributeIndex);
 		gl.glVertexAttribPointer(attributeIndex, componentsPerVertex, GL3.GL_FLOAT, false, 4*componentsPerVertex, 0);
-		gl.glBindBuffer(GL3.GL_ARRAY_BUFFER, 0);
+		//gl.glBindBuffer(GL3.GL_ARRAY_BUFFER, 0);
 	}
 	
 	private void bindIndices(int[] indices){

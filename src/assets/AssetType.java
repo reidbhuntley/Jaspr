@@ -22,7 +22,7 @@ public abstract class AssetType<T> {
 		loadFromDir(dir);
 	}
 	
-	private void loadFromDir(File dir){
+	protected void loadFromDir(File dir){
 		for(File f : dir.listFiles()){
 			if(f.isFile()){
 				try {

@@ -18,15 +18,18 @@ public class Test3D {
 		es = new EntitySystem();
 		
 		models = new ModelManager();
-		models.preload();
 		
-		new Entity(models.get("res\\models\\boots.obj"));
-		new Entity(models.get("res\\models\\boots.obj"), new Position(20.0f,-10.0f,10.0f, 0,-80.0f,0));
+		GameWindow window = new GameWindow(WINDOW_WIDTH, WINDOW_HEIGHT);
+		window.assignModelManager(models);
+		window.open();
+		
+		new Entity(models.get("res\\models\\boots.obj"), new Position(10.0f,-30.0f,-10.0f));
+		new Entity(models.get("res\\models\\boots.obj"), new Position(0.0f,0.0f,-40.0f));
 		new Entity(models.get("res\\models\\capricorn.obj"), new Position(20.0f,0,-100f, 0,180.0f,0));
 		
 		game = new GameManager(100);
 		game.assignEntitySystem(es);
-		game.assignGameWindow(new GameWindow(WINDOW_WIDTH, WINDOW_HEIGHT));
+		game.assignGameWindow(window);
 		game.setPhase(new MainPhase());
 		game.start();
 		

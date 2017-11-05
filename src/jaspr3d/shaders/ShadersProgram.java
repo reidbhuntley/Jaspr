@@ -1,8 +1,7 @@
 package jaspr3d.shaders;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ public abstract class ShadersProgram {
 	private int vertexShaderID;
 	private int fragmentShaderID;
 	private GL3 gl;
-	private HashMap<String,Integer> attributes;
+	private HashMap<String, Integer> attributes;
 
 	public ShadersProgram(GL3 gl, String vertexFile, String fragmentFile) {
 		this.gl = gl;
@@ -32,37 +31,37 @@ public abstract class ShadersProgram {
 		gl.glValidateProgram(programID);
 		initUniformLocations();
 	}
-	
+
 	protected abstract void initUniformLocations();
-	
-	protected int initUniformLocation(String uniformName){
+
+	protected int initUniformLocation(String uniformName) {
 		int location = gl.glGetUniformLocation(programID, uniformName);
 		attributes.put(uniformName, location);
 		return location;
 	}
-	
-	protected int getUniformLocation(String uniformName){
+
+	protected int getUniformLocation(String uniformName) {
 		return attributes.get(uniformName);
 	}
-	
-	protected void loadFloat(int location, float value){
+
+	protected void loadFloat(int location, float value) {
 		gl.glUniform1f(location, value);
 	}
 
-	protected void loadVector(int location, float v0, float v1, float v2){
+	protected void loadVector(int location, float v0, float v1, float v2) {
 		gl.glUniform3f(location, v0, v1, v2);
 	}
-	
-	protected void loadBoolean(int location, boolean value){
+
+	protected void loadBoolean(int location, boolean value) {
 		float toLoad = 0;
-		if(value)
+		if (value)
 			toLoad = 1;
 		else
 			toLoad = 0;
 		gl.glUniform1f(location, toLoad);
 	}
-	
-	protected void loadMatrix(int location, float[] matrix){
+
+	protected void loadMatrix(int location, float[] matrix) {
 		gl.glUniformMatrix4fv(location, 1, false, matrix, 0);
 	}
 
@@ -93,29 +92,34 @@ public abstract class ShadersProgram {
 		List<String> lines = new ArrayList<>();
 		List<Integer> lengths = new ArrayList<>();
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(file));
+			InputStream in = this.getClass().getClassLoader().getResourceAsStream(file);
 			String line;
-			while ((line = reader.readLine()) != null) {
-				if(lines.size() > 0)
+			byte[] lineBytes;
+			while (true) {
+				lineBytes = new byte[in.available()];
+				if (in.read(lineBytes) == 0)
+					break;
+				line = new String(lineBytes);
+				if (lines.size() > 0)
 					line = System.getProperty("line.separator") + line;
 				lines.add(line);
 				lengths.add(line.length());
 			}
-			reader.close();
+			in.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
-		
+
 		String[] shaderSource = new String[lines.size()];
 		int[] lengthsArray = new int[lengths.size()];
 
 		lines.toArray(shaderSource);
-		
-		for(int i = 0; i < lengths.size(); i++)
+
+		for (int i = 0; i < lengths.size(); i++)
 			lengthsArray[i] = lengths.get(i);
 		IntBuffer shaderLengths = IntBuffer.wrap(lengthsArray);
-		
+
 		int shaderID = gl.glCreateShader(type);
 		gl.glShaderSource(shaderID, lengthsArray.length, shaderSource, shaderLengths);
 		gl.glCompileShader(shaderID);
@@ -125,8 +129,8 @@ public abstract class ShadersProgram {
 			ByteBuffer logBytes = ByteBuffer.allocate(200);
 			gl.glGetShaderInfoLog(shaderID, 200, IntBuffer.allocate(1), logBytes);
 			System.err.println("Could not compile shader!");
-			for(int i = 0; i < logBytes.remaining(); i++)
-				System.err.print((char)logBytes.get(i));
+			for (int i = 0; i < logBytes.remaining(); i++)
+				System.err.print((char) logBytes.get(i));
 			System.exit(-1);
 		}
 		return shaderID;

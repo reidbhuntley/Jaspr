@@ -8,8 +8,8 @@ import jaspr3d.Position;
 
 public class StaticShader extends ShadersProgram {
 	
-	private final static String VERTEX_FILE = "src/jaspr3d/shaders/vertexShader.txt";
-	private final static String FRAGMENT_FILE = "src/jaspr3d/shaders/fragmentShader.txt";
+	private final static String VERTEX_FILE = "jaspr3d/shaders/vertexShader.txt";
+	private final static String FRAGMENT_FILE = "jaspr3d/shaders/fragmentShader.txt";
 
 	public StaticShader(GL3 gl) {
 		super(gl, VERTEX_FILE, FRAGMENT_FILE);

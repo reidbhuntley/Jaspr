@@ -1,7 +1,5 @@
-package jaspr3d;
+package res;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -9,18 +7,19 @@ import java.util.List;
 
 import com.jogamp.opengl.GL3;
 
-import assets.AssetType;
 import de.javagl.obj.FloatTuple;
 import de.javagl.obj.Obj;
 import de.javagl.obj.ObjFace;
 import de.javagl.obj.ObjReader;
+import jaspr3d.RawModel;
+import jaspr3d.VAOLoader;
 
 public class ModelManager extends AssetType<RawModel> {
-	
+
 	private VAOLoader loader;
 	private GL3 gl;
-	
-	public ModelManager(){
+
+	public ModelManager() {
 		loader = new VAOLoader();
 	}
 
@@ -29,30 +28,28 @@ public class ModelManager extends AssetType<RawModel> {
 	}
 
 	@Override
-	public File directory() {
-		return new File("res/models/");
-	}
-	
-	public void preload(GL3 gl){
-		File dir = directory();
-		if(dir == null)
-			throw new IllegalStateException("directory() method in class "+getClass().getName()+" must return a directory File");
-		if(!dir.isDirectory()){
-			throw new IllegalStateException("directory() method in class "+getClass().getName()+" must return a directory File");
-		}
-		this.gl = gl;
-		loadFromDir(dir);
-	}
-	
-	@Override
-	public void preload(){
-		
+	public String folderName() {
+		return "models";
 	}
 
 	@Override
-	public RawModel load(File f) throws IOException {
-		InputStream objInputStream = new FileInputStream(f);
-		Obj obj = ObjReader.read(objInputStream);
+	public String extension() {
+		return "obj";
+	}
+
+	public void preload(GL3 gl) {
+		this.gl = gl;
+		loadFromDir(folderName());
+	}
+
+	@Override
+	public void preload() {
+
+	}
+
+	@Override
+	public RawModel load(InputStream in, String name) throws IOException {
+		Obj obj = ObjReader.read(in);
 
 		List<Integer> indices = new ArrayList<>();
 		List<FloatTuple> textures = new ArrayList<>();
@@ -80,11 +77,11 @@ public class ModelManager extends AssetType<RawModel> {
 			ObjFace face = obj.getFace(i);
 			int numVerts = face.getNumVertices();
 			List<Integer> points = new ArrayList<>();
-			if(numVerts == 3){
+			if (numVerts == 3) {
 				points.add(0);
 				points.add(1);
 				points.add(2);
-			} else if(numVerts == 4){
+			} else if (numVerts == 4) {
 				points.add(0);
 				points.add(1);
 				points.add(2);
@@ -92,18 +89,18 @@ public class ModelManager extends AssetType<RawModel> {
 				points.add(2);
 				points.add(3);
 			} else {
-				throw new IllegalArgumentException("Polys in .obj file "+f.getName()+" must be triangles or quads");
+				throw new IllegalArgumentException("Polys in .obj file " + name + " must be triangles or quads");
 			}
-			for(int j = 0; j < points.size(); j++){
+			for (int j = 0; j < points.size(); j++) {
 				int point = points.get(j);
 				int currentVertexPointer = face.getVertexIndex(point);
 				indices.add(currentVertexPointer);
-				if(textures.size() > 0){
+				if (textures.size() > 0) {
 					FloatTuple currentTex = textures.get(face.getTexCoordIndex(point));
 					textureArray[currentVertexPointer * 2] = currentTex.getX();
-					textureArray[currentVertexPointer * 2 + 1] =  currentTex.getY();
+					textureArray[currentVertexPointer * 2 + 1] = currentTex.getY();
 				}
-				if(normals.size() > 0){
+				if (normals.size() > 0) {
 					FloatTuple currentNorm = normals.get(face.getNormalIndex(point));
 					normalsArray[currentVertexPointer * 3] = currentNorm.getX();
 					normalsArray[currentVertexPointer * 3 + 1] = currentNorm.getY();
@@ -111,18 +108,16 @@ public class ModelManager extends AssetType<RawModel> {
 				}
 			}
 		}
-		
+
 		indicesArray = new int[indices.size()];
-		for(int i = 0; i < indicesArray.length; i++){
+		for (int i = 0; i < indicesArray.length; i++) {
 			indicesArray[i] = indices.get(i);
 		}
-		
 		RawModel model = loader.loadToVAO(gl, indicesArray, verticesArray, normalsArray, textureArray);
 		return model;
-
 	}
-	
-	public void cleanUp(){
+
+	public void cleanUp() {
 		loader.cleanUp();
 	}
 

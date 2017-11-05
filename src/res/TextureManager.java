@@ -1,7 +1,7 @@
-package assets;
+package res;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,16 +26,8 @@ public class TextureManager extends AssetType<Texture> {
 	}
 
 	public void preload(GL3 gl) {
-		File dir = directory();
-		if (dir == null)
-			throw new IllegalStateException(
-					"directory() method in class " + getClass().getName() + " must return a directory File");
-		if (!dir.isDirectory()) {
-			throw new IllegalStateException(
-					"directory() method in class " + getClass().getName() + " must return a directory File");
-		}
 		this.gl = gl;
-		loadFromDir(dir);
+		loadFromDir(folderName());
 		defaultTexture = assets().get(defaultTexturePath);
 	}
 
@@ -45,13 +37,13 @@ public class TextureManager extends AssetType<Texture> {
 	}
 
 	@Override
-	public File directory() {
-		return new File("res\\textures\\");
+	public String folderName() {
+		return "textures";
 	}
 
 	@Override
-	public Texture load(File f) throws IOException {
-		TextureData data = TextureIO.newTextureData(gl.getGLProfile(), f, false, TextureIO.PNG);
+	public Texture load(InputStream in, String name) throws IOException {
+		TextureData data = TextureIO.newTextureData(gl.getGLProfile(), in, false, TextureIO.PNG);
 
 		int level = 0;
 
@@ -68,6 +60,9 @@ public class TextureManager extends AssetType<Texture> {
 		IntBuffer swizzle = GLBuffers
 				.newDirectIntBuffer(new int[] { GL3.GL_RED, GL3.GL_GREEN, GL3.GL_BLUE, GL3.GL_ONE });
 		gl.glTexParameterIiv(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_SWIZZLE_RGBA, swizzle);
+		
+		gl.glGenerateMipmap(GL3.GL_TEXTURE_2D);
+		gl.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_MIN_FILTER, GL3.GL_LINEAR_MIPMAP_LINEAR);
 		
 		gl.glBindTexture(GL3.GL_TEXTURE_2D, 0);
 		return new Texture(textureID);
@@ -91,6 +86,11 @@ public class TextureManager extends AssetType<Texture> {
 
 	public Texture defaultTexture() {
 		return defaultTexture;
+	}
+
+	@Override
+	public String extension() {
+		return "png";
 	}
 
 }

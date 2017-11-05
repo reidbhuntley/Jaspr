@@ -1,9 +1,10 @@
-package assets;
+package res;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -46,10 +47,10 @@ public class SoundManager extends AssetType<AudioInputStream> {
 			clip.start();
 	}
 	
-	public AudioInputStream load(File file) {
+	public AudioInputStream load(InputStream in, String name) {
 		AudioInputStream ais = null;
 		try {
-			ais = AudioSystem.getAudioInputStream(file);
+			ais = AudioSystem.getAudioInputStream(in);
 			byte[] buffer = new byte[1024 * 32];
 			int read = 0;
 			ByteArrayOutputStream baos = new ByteArrayOutputStream(buffer.length);
@@ -76,8 +77,13 @@ public class SoundManager extends AssetType<AudioInputStream> {
 	}
 
 	@Override
-	public File directory() {
-		return new File("res\\sounds\\");
+	public String folderName() {
+		return "sounds";
+	}
+	
+	@Override
+	public String extension() {
+		return "wav";
 	}
 	
 }

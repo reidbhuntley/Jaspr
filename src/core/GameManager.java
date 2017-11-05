@@ -27,6 +27,7 @@ public class GameManager {
 		es = entitySystem;
 		this.window = window;
 		window.assignEntitySystem(es);
+		window.display();
 		executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
 		newPhase = false;
 		quit = true;
@@ -53,7 +54,7 @@ public class GameManager {
 	        actualFps = Math.pow(10,9)/((double)frameTime);
 	        if(frameTime < dt)
 	        	Thread.sleep((dt - frameTime)/1000000);
-	        currentTime = newTime;
+	        currentTime = System.nanoTime();
 
 	        accumulator += frameTime;
 	        while (accumulator >= dt){
@@ -72,6 +73,8 @@ public class GameManager {
 	
 	private void processPhase() throws InterruptedException, ExecutionException{
 		KeylogManager.fetchKeys();
+		es.updateFetchers();
+		
 		List<Routine> routineQueue = new ArrayList<Routine>(currentPhase.getRoutines());
 		//routineQueue.addAll(events);
 		for(Routine r : routineQueue){

@@ -2,16 +2,16 @@ package demo3d;
 
 import java.util.concurrent.ExecutionException;
 
-import assets.TextureManager;
 import core.Entity;
 import core.EntitySystem;
 import core.GameManager;
 import core.GameWindow;
 import jaspr3d.Camera;
 import jaspr3d.Light;
-import jaspr3d.ModelManager;
 import jaspr3d.Position;
 import jaspr3d.Renderer;
+import res.ModelManager;
+import res.TextureManager;
 
 public class Test3D {
 
@@ -24,7 +24,7 @@ public class Test3D {
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		models = new ModelManager();
-		textures = new TextureManager("res\\textures\\default.png");
+		textures = new TextureManager("default.png");
 		es = new EntitySystem();
 		GameWindow window = new GameWindow(WINDOW_WIDTH, WINDOW_HEIGHT, new Renderer(FOV, NEAR_FRAME, FAR_FRAME),
 				models, textures);
@@ -32,11 +32,11 @@ public class Test3D {
 		game = new GameManager(100, es, window);
 
 		new Entity(new Camera());
-		new Entity(new Light(1, 1, 1), new Position(0, 5, -60));
-		for (int i = 0; i < 16; i++) {
-			for (int j = 0; j < 16; j++) {
-				new Entity(models.get("res\\models\\barrel.obj"), textures.get("res\\textures\\diffuse.png", 10, 1),
-						new Position((i - 8) * 60, -50, (j - 8) * 60, 0, 20.0f, 0));
+		new Entity(new Light(0, 5, 0, 1, 1, 1), new Position(0, 5, -60));
+		for (int i = 0; i < 24; i++) {
+			for (int j = 0; j < 24; j++) {
+				new Entity(models.get("barrel.obj"), textures.get("diffuse.png", 10, 1),
+						new Position((i - 12) * 60, -50, (j - 12) * 60, 0, 0, 0));
 			}
 		}
 		// new Entity(models.get("res\\models\\boots.obj"), new

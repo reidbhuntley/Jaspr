@@ -9,6 +9,8 @@ import com.jogamp.opengl.glu.GLU;
 
 import core.Entity;
 import core.EntitySystem;
+import core.EntitySystem.EntityFetcher;
+import core.EntitySystem.SingletonFetcher;
 import jaspr3d.shaders.StaticShader;
 
 public class Renderer {
@@ -19,6 +21,8 @@ public class Renderer {
 	private Texture defaultTexture;
 	private int WIDTH, HEIGHT;
 	private HashMap<TexturedModel,List<Position>> worldModels;
+	private EntityFetcher rawModels, texturedModels;
+	private SingletonFetcher lights, cameras;
 
 	private static StaticShader shader;
 	
@@ -28,16 +32,18 @@ public class Renderer {
 		FAR_PLANE = farPlane;
 	}
 	
-	public void init(GL3 gl, int width, int height, Texture texture){
-		gl.glEnable(GL3.GL_DEPTH_TEST);
-		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		gl.glEnable(GL3.GL_CULL_FACE);
-		gl.glCullFace(GL3.GL_BACK);
-		
+	public void init(GL3 gl, EntitySystem es, int width, int height, Texture texture){		
 		WIDTH = width;
 		HEIGHT = height;
 		defaultTexture = texture;
 		worldModels = new HashMap<>();
+		
+		rawModels = es.genEntityFetcher(RawModel.class);
+		texturedModels = es.genEntityFetcher(TexturedModel.class);
+		
+		lights = es.genSingletonFetcher(Light.class);
+		cameras = es.genSingletonFetcher(Camera.class);
+		
 		shader = new StaticShader(gl);
 		shader.start();
 		shader.loadProjectionMatrix(
@@ -51,25 +57,16 @@ public class Renderer {
 	}
 
 	public void render(GL3 gl, GLU glu, EntitySystem es) {
-		shader.start();
+		gl.glEnable(GL3.GL_DEPTH_TEST);
+		gl.glDepthRange(NEAR_PLANE, FAR_PLANE);
 		
-		Camera camera = (Camera) es.getFirstComponent(Camera.class);
-		if(camera != null){
-			camera.updateTransformations();
-			shader.loadCameraPosition(camera);
-			shader.loadViewMatrix(camera.getTransformations());
-		}
+		gl.glEnable(GL3.GL_CULL_FACE);
+		gl.glCullFace(GL3.GL_BACK);
 		
-		Entity lightEnt = es.getFirstEntityPossessing(Light.class, Position.class);
-		if(lightEnt != null){
-			shader.loadLight(lightEnt.getAs(Light.class), lightEnt.getAs(Position.class));
-		}
-		
+		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		gl.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT);
 		
-		worldModels.clear();
-		
-		for (Entity e : es.getAllEntitiesPossessing(RawModel.class, Position.class)) {
+		for (Entity e : rawModels.fetch()) {
 			RawModel model = e.getAs(RawModel.class);
 			Texture texture;
 			if(e.hasComponent(Texture.class)){
@@ -78,17 +75,40 @@ public class Renderer {
 				texture = defaultTexture;
 			}
 			
+			Position pos = e.getAs(Position.class);
+			if(pos == null)
+				pos = new Position();
+			
 			TexturedModel tModel = new TexturedModel(model,texture);
 			if(!worldModels.containsKey(tModel))
 				worldModels.put(tModel, new ArrayList<>());
-			worldModels.get(tModel).add(e.getAs(Position.class));
+			worldModels.get(tModel).add(pos);
 		}
 		
-		for (Entity e : es.getAllEntitiesPossessing(TexturedModel.class, Position.class)) {
+		for (Entity e : texturedModels.fetch()) {
 			TexturedModel tModel = e.getAs(TexturedModel.class);
+			
+			Position pos = e.getAs(Position.class);
+			if(pos == null)
+				pos = new Position();
+			
 			if(!worldModels.containsKey(tModel))
 				worldModels.put(tModel, new ArrayList<>());
-			worldModels.get(tModel).add(e.getAs(Position.class));
+			worldModels.get(tModel).add(pos);
+		}
+		
+		shader.start();
+		
+		Camera camera = (Camera) cameras.fetchComponent();
+		if(camera != null){
+			camera.updateTransformations();
+			shader.loadCameraPosition(camera);
+			shader.loadViewMatrix(camera.getTransformations());
+		}
+		
+		Light light = (Light) lights.fetchComponent();
+		if(light != null){
+			shader.loadLight(light);
 		}
 		
 		for(TexturedModel tModel : worldModels.keySet()){
@@ -110,6 +130,8 @@ public class Renderer {
 		
 		shader.stop();
 		gl.glFlush();
+		
+		worldModels.clear();
 	}
 
 	private float[] createProjectionMatrix(int width, int height, float fov, float near_plane, float far_plane) {

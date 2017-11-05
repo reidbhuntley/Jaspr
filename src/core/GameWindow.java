@@ -13,9 +13,9 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 
-import assets.TextureManager;
-import jaspr3d.ModelManager;
 import jaspr3d.Renderer;
+import res.ModelManager;
+import res.TextureManager;
 
 public final class GameWindow implements GLEventListener {
 
@@ -49,8 +49,6 @@ public final class GameWindow implements GLEventListener {
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		canvas.addKeyListener(new KeylogReciever());
 		canvas.requestFocus();
-
-		display();
 	}
 
 	protected void display() {
@@ -95,7 +93,7 @@ public final class GameWindow implements GLEventListener {
 		if(textures != null)
 			textures.preload(gl);
 		if(renderer != null)
-			renderer.init(gl, WIDTH, HEIGHT, textures.defaultTexture());
+			renderer.init(gl, es, WIDTH, HEIGHT, textures.defaultTexture());
 	}
 
 	@Override

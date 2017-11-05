@@ -1,12 +1,11 @@
 package jaspr3d;
 
-import core.Component;
-
-public class Light extends Component {
+public class Light extends Position {
 	
 	private float r,g,b;
 
-	public Light(float r, float g, float b) {
+	public Light(float x, float y, float z, float r, float g, float b) {
+		super(x,y,z);
 		setColor(r,g,b);
 	}
 	

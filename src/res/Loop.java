@@ -1,4 +1,4 @@
-package assets;
+package res;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.Clip;

@@ -4,7 +4,6 @@ import com.jogamp.opengl.GL3;
 
 import jaspr3d.Camera;
 import jaspr3d.Light;
-import jaspr3d.Position;
 
 public class StaticShader extends ShadersProgram {
 	
@@ -56,8 +55,8 @@ public class StaticShader extends ShadersProgram {
 		super.loadMatrix(getUniformLocation("viewMatrix"), matrix);
 	}
 	
-	public void loadLight(Light light, Position pos){
-		float[] coords = pos.getCoords(), color = light.getColor();
+	public void loadLight(Light light){
+		float[] coords = light.getCoords(), color = light.getColor();
 		super.loadVector(getUniformLocation("lightPosition"),coords[0],coords[1],coords[2]);
 		super.loadVector(getUniformLocation("lightColor"),color[0],color[1],color[2]);
 	}

@@ -4,6 +4,8 @@ import java.awt.event.KeyEvent;
 
 import core.Component;
 import core.Entity;
+import core.EntitySystem.EntityFetcher;
+import core.EntitySystem.SingletonFetcher;
 import core.KeylogManager;
 import core.Routine;
 import jaspr3d.Camera;
@@ -11,12 +13,15 @@ import jaspr3d.Position;
 
 public class MovementRoutine extends Routine {
 
+	private static SingletonFetcher cameras;
+	private static EntityFetcher positions;
+	
 	@Override
 	public void routine() {
 		if (KeylogManager.pressed(KeyEvent.VK_ESCAPE))
 			Test3D.game.quit();
 
-		Camera camera = (Camera) Test3D.es.getFirstComponent(Camera.class);
+		Camera camera = (Camera) cameras.fetchComponent();
 		
 		float z = 0, yaw = 0;
 		if (KeylogManager.pressed(KeyEvent.VK_LEFT))
@@ -28,11 +33,13 @@ public class MovementRoutine extends Routine {
 		if (KeylogManager.pressed(KeyEvent.VK_DOWN))
 			z += 5;
 		
-		camera.rotate(0, yaw, 0);
-		yaw = (float)Math.toRadians(camera.getRot()[1]);
-		camera.move((float)(-z*Math.sin(yaw)), 0, (float)(z*Math.cos(yaw)));
+		if(camera != null){
+			camera.rotate(0, yaw, 0);
+			yaw = (float)Math.toRadians(camera.getRot()[1]);
+			camera.move((float)(-z*Math.sin(yaw)), 0, (float)(z*Math.cos(yaw)));
+		}
 		
-		for(Entity e : Test3D.es.getAllEntitiesPossessing(Position.class)){
+		for(Entity e : positions.fetch()){
 			e.getAs(Position.class).rotate(0, 1, 0);
 		}
 		
@@ -48,8 +55,8 @@ public class MovementRoutine extends Routine {
 
 	@Override
 	public void onInit() {
-		// TODO Auto-generated method stub
-
+		cameras = Test3D.es.genSingletonFetcher(Camera.class);
+		positions = Test3D.es.genEntityFetcher(Position.class);
 	}
 
 	@Override

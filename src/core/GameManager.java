@@ -50,7 +50,7 @@ public class GameManager {
 	    while (!quit){
 	       	long newTime = System.nanoTime();
 	        long frameTime = newTime - currentTime;
-	        actualFps = 1000000000.0/((double)frameTime);
+	        actualFps = Math.pow(10,9)/((double)frameTime);
 	        if(frameTime < dt)
 	        	Thread.sleep((dt - frameTime)/1000000);
 	        currentTime = newTime;

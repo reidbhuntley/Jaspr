@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.jogamp.opengl.GL3;
@@ -16,9 +17,11 @@ public abstract class ShadersProgram {
 	private int vertexShaderID;
 	private int fragmentShaderID;
 	private GL3 gl;
+	private HashMap<String,Integer> attributes;
 
 	public ShadersProgram(GL3 gl, String vertexFile, String fragmentFile) {
 		this.gl = gl;
+		attributes = new HashMap<>();
 		vertexShaderID = loadShader(vertexFile, GL3.GL_VERTEX_SHADER);
 		fragmentShaderID = loadShader(fragmentFile, GL3.GL_FRAGMENT_SHADER);
 		programID = gl.glCreateProgram();
@@ -27,13 +30,19 @@ public abstract class ShadersProgram {
 		bindAttributes();
 		gl.glLinkProgram(programID);
 		gl.glValidateProgram(programID);
-		getAllUniformLocations();
+		initUniformLocations();
 	}
 	
-	protected abstract void getAllUniformLocations();
+	protected abstract void initUniformLocations();
+	
+	protected int initUniformLocation(String uniformName){
+		int location = gl.glGetUniformLocation(programID, uniformName);
+		attributes.put(uniformName, location);
+		return location;
+	}
 	
 	protected int getUniformLocation(String uniformName){
-		return gl.glGetUniformLocation(programID, uniformName);
+		return attributes.get(uniformName);
 	}
 	
 	protected void loadFloat(int location, float value){

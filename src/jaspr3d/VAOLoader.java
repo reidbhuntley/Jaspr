@@ -18,7 +18,7 @@ public class VAOLoader {
 		bindIndices(indices);
 		storeAttribute(0, vertices, 3);
 		storeAttribute(1, texCoords, 2);
-		//storeAttribute(2, normals, 3);
+		storeAttribute(2, normals, 3);
 		unbindVAO();
 		return new RawModel(vaoID, vertices.length / 3, indices.length);
 	}

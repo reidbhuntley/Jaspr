@@ -26,6 +26,10 @@ public class Entity {
 		return EntitySystem.es.getComponent(this, type);
 	}
 	
+	public <T extends Component> T readAs(Class<T> type){
+		return EntitySystem.es.readComponent(this, type);
+	}
+	
 	public void addComponent(Component c){
 		EntitySystem.es.addComponentToEntity(this, c);
 	}

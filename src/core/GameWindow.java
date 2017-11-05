@@ -90,15 +90,12 @@ public final class GameWindow implements GLEventListener {
 		GL3 gl = drawable.getGL().getGL3();
 		glu = new GLU();
 		
-		gl.glEnable(GL3.GL_DEPTH_TEST);
-		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		
-		if(renderer != null)
-			renderer.init(gl, WIDTH, HEIGHT);
 		if(models != null)
 			models.preload(gl);
 		if(textures != null)
 			textures.preload(gl);
+		if(renderer != null)
+			renderer.init(gl, WIDTH, HEIGHT, textures.defaultTexture());
 	}
 
 	@Override

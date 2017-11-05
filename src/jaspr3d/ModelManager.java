@@ -101,7 +101,7 @@ public class ModelManager extends AssetType<RawModel> {
 				if(textures.size() > 0){
 					FloatTuple currentTex = textures.get(face.getTexCoordIndex(point));
 					textureArray[currentVertexPointer * 2] = currentTex.getX();
-					textureArray[currentVertexPointer * 2 + 1] = 1 - currentTex.getY();
+					textureArray[currentVertexPointer * 2 + 1] =  currentTex.getY();
 				}
 				if(normals.size() > 0){
 					FloatTuple currentNorm = normals.get(face.getNormalIndex(point));

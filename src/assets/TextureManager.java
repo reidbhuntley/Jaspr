@@ -17,9 +17,12 @@ public class TextureManager extends AssetType<Texture> {
 
 	private GL3 gl;
 	private List<Integer> textureIDs;
+	private final String defaultTexturePath;
+	private Texture defaultTexture;
 
-	public TextureManager() {
+	public TextureManager(String defaultTexturePath) {
 		textureIDs = new ArrayList<>();
+		this.defaultTexturePath = defaultTexturePath;
 	}
 
 	public void preload(GL3 gl) {
@@ -33,6 +36,7 @@ public class TextureManager extends AssetType<Texture> {
 		}
 		this.gl = gl;
 		loadFromDir(dir);
+		defaultTexture = assets().get(defaultTexturePath);
 	}
 
 	@Override
@@ -60,11 +64,11 @@ public class TextureManager extends AssetType<Texture> {
 				data.getBorder(), data.getPixelFormat(), data.getPixelType(), data.getBuffer());
 		gl.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_BASE_LEVEL, 0);
 		gl.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_MAX_LEVEL, level);
-
+		
 		IntBuffer swizzle = GLBuffers
 				.newDirectIntBuffer(new int[] { GL3.GL_RED, GL3.GL_GREEN, GL3.GL_BLUE, GL3.GL_ONE });
 		gl.glTexParameterIiv(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_SWIZZLE_RGBA, swizzle);
-
+		
 		gl.glBindTexture(GL3.GL_TEXTURE_2D, 0);
 		return new Texture(textureID);
 	}
@@ -77,8 +81,16 @@ public class TextureManager extends AssetType<Texture> {
 		gl.glDeleteTextures(ids.remaining(), ids);
 	}
 
+	public Texture get(String filename, float shineDamper, float reflectivity) {
+		return new Texture(assets().get(filename).getID(), shineDamper, reflectivity);
+	}
+	
 	public Texture get(String filename) {
 		return assets().get(filename);
+	}
+
+	public Texture defaultTexture() {
+		return defaultTexture;
 	}
 
 }

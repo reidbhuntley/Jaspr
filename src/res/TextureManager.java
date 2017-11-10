@@ -18,29 +18,23 @@ public class TextureManager extends AssetType<Texture> {
 	private GL3 gl;
 	private List<Integer> textureIDs;
 	private final String defaultTexturePath;
-	private Texture defaultTexture;
 
 	public TextureManager(String defaultTexturePath) {
+		super("textures", "png");
 		textureIDs = new ArrayList<>();
 		this.defaultTexturePath = defaultTexturePath;
 	}
 
 	public void preload(GL3 gl) {
 		this.gl = gl;
-		loadFromDir(folderName());
-		defaultTexture = assets().get(defaultTexturePath);
+		loadFromDir(folderName);
 	}
 
 	@Override
 	public void preload() {
 
 	}
-
-	@Override
-	public String folderName() {
-		return "textures";
-	}
-
+	
 	@Override
 	public Texture load(InputStream in, String name) throws IOException {
 		TextureData data = TextureIO.newTextureData(gl.getGLProfile(), in, false, TextureIO.PNG);
@@ -77,6 +71,10 @@ public class TextureManager extends AssetType<Texture> {
 	}
 
 	public Texture get(String filename, float shineDamper, float reflectivity) {
+		Texture texture = assets().get(filename);
+		if(texture == null){
+			throw new IllegalArgumentException("Missing texture file '"+filename+"'");
+		}
 		return new Texture(assets().get(filename).getID(), shineDamper, reflectivity);
 	}
 	
@@ -85,12 +83,7 @@ public class TextureManager extends AssetType<Texture> {
 	}
 
 	public Texture defaultTexture() {
-		return defaultTexture;
-	}
-
-	@Override
-	public String extension() {
-		return "png";
+		return get(defaultTexturePath);
 	}
 
 }

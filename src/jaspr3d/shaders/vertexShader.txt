@@ -9,16 +9,16 @@ out vec3 surfaceNormal;
 out vec3 toLightVector;
 out vec3 toCameraVector;
 
-uniform mat4 transformationMatrix;
-uniform mat4 projectionMatrix;
-uniform mat4 viewMatrix;
+uniform mat4 modelMatrix;
+uniform mat4 mvpMatrix;
 uniform vec3 lightPosition;
 uniform vec3 cameraPosition;
 
 void main(void){
 
-	vec4 worldPosition = transformationMatrix * vec4(position.xyz,1.0);
-	gl_Position = projectionMatrix * viewMatrix * worldPosition;
+	vec4 position4 = vec4(position.xyz,1.0);
+	vec4 worldPosition = modelMatrix * position4;
+	gl_Position = mvpMatrix * position4;
 	pass_textureCoords = textureCoords;
 	
 	if(normal == vec3(0.0,0.0,0.0)){
@@ -28,7 +28,7 @@ void main(void){
 		return;
 	}
 	
-	surfaceNormal = (transformationMatrix * vec4(normal,0.0)).xyz;
+	surfaceNormal = (modelMatrix * vec4(normal,0.0)).xyz;
 	toLightVector = lightPosition.xyz - worldPosition.xyz;
 	toCameraVector = cameraPosition.xyz - worldPosition.xyz;
 

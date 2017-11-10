@@ -13,6 +13,10 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class SoundManager extends AssetType<AudioInputStream> {
 
+	public SoundManager(){
+		super("sounds", "wav");
+	}
+	
 	public Clip getSound(String filename) {
 		AudioInputStream stream = assets().get(filename);
 		if(stream != null){
@@ -74,16 +78,6 @@ public class SoundManager extends AssetType<AudioInputStream> {
 			}
 		}
 		return null;
-	}
-
-	@Override
-	public String folderName() {
-		return "sounds";
-	}
-	
-	@Override
-	public String extension() {
-		return "wav";
 	}
 	
 }

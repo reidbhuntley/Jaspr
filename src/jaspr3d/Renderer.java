@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.math.Matrix4;
 
 import core.Entity;
 import core.EntitySystem;
@@ -18,11 +19,13 @@ public class Renderer {
 	private final float FOV;
 	private final float NEAR_PLANE;
 	private final float FAR_PLANE;
+	private final HashMap<TexturedModel,List<Position>> worldModels;
+	
 	private Texture defaultTexture;
 	private int WIDTH, HEIGHT;
-	private HashMap<TexturedModel,List<Position>> worldModels;
 	private EntityFetcher rawModels, texturedModels;
 	private SingletonFetcher lights, cameras;
+	private Matrix4 projectionMatrix;
 
 	private static StaticShader shader;
 	
@@ -30,25 +33,23 @@ public class Renderer {
 		FOV = fov;
 		NEAR_PLANE = nearPlane;
 		FAR_PLANE = farPlane;
+		worldModels = new HashMap<>();
 	}
 	
 	public void init(GL3 gl, EntitySystem es, int width, int height, Texture texture){		
 		WIDTH = width;
 		HEIGHT = height;
 		defaultTexture = texture;
-		worldModels = new HashMap<>();
 		
-		rawModels = es.genEntityFetcher(RawModel.class);
-		texturedModels = es.genEntityFetcher(TexturedModel.class);
+		rawModels = es.getEntityFetcher(RawModel.class);
+		texturedModels = es.getEntityFetcher(TexturedModel.class);
 		
-		lights = es.genSingletonFetcher(Light.class);
-		cameras = es.genSingletonFetcher(Camera.class);
+		lights = es.getSingletonFetcher(Light.class);
+		cameras = es.getSingletonFetcher(Camera.class);
+		
+		projectionMatrix = createProjectionMatrix(WIDTH, HEIGHT, FOV, NEAR_PLANE, FAR_PLANE);
 		
 		shader = new StaticShader(gl);
-		shader.start();
-		shader.loadProjectionMatrix(
-				createProjectionMatrix(WIDTH, HEIGHT, FOV, NEAR_PLANE, FAR_PLANE));
-		shader.stop();
 		gl.glActiveTexture(GL3.GL_TEXTURE0);
 	}
 	
@@ -103,7 +104,6 @@ public class Renderer {
 		if(camera != null){
 			camera.updateTransformations();
 			shader.loadCameraPosition(camera);
-			shader.loadViewMatrix(camera.getTransformations());
 		}
 		
 		Light light = (Light) lights.fetchComponent();
@@ -122,7 +122,13 @@ public class Renderer {
 			
 			for(Position pos : positions){
 				pos.updateTransformations();
-				shader.loadTransformationMatrix(pos.getTransformations());
+				Matrix4 transformations = new Matrix4();
+				transformations.loadIdentity();
+				transformations.multMatrix(projectionMatrix);
+				transformations.multMatrix(camera.getTransformations());
+				transformations.multMatrix(pos.getTransformations());
+				shader.loadMvpMatrix(transformations);
+				shader.loadWorldMatrix(pos.getTransformations());
 				gl.glDrawElements(GL3.GL_TRIANGLES, model.getIndicesCount(), GL3.GL_UNSIGNED_INT, 0);
 			}
 			gl.glBindVertexArray(0);
@@ -134,14 +140,17 @@ public class Renderer {
 		worldModels.clear();
 	}
 
-	private float[] createProjectionMatrix(int width, int height, float fov, float near_plane, float far_plane) {
+	private Matrix4 createProjectionMatrix(int width, int height, float fov, float near_plane, float far_plane) {
 		final float aspectRatio = (float) width / (float) height;
 		final float y_scale = (float) ((1f / Math.tan(Math.toRadians(fov / 2f))) * aspectRatio);
 		final float x_scale = y_scale / aspectRatio;
 		final float frustum_length = far_plane - near_plane;
 		final float[] pMat = { x_scale, 0, 0, 0, 0, y_scale, 0, 0, 0, 0, -((far_plane + near_plane) / frustum_length),
 				-1, 0, 0, -((2 * near_plane * far_plane) / frustum_length), 0 };
-		return pMat;
+		Matrix4 mat = new Matrix4();
+		mat.loadIdentity();
+		mat.multMatrix(pMat);
+		return mat;
 	}
 	
 }

@@ -1,7 +1,6 @@
 package core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,6 +21,7 @@ public class GameManager {
 	private final long dt;
 	private double actualFps;
 	private GameWindow window;
+	private List<KeyManager> keyManagers;
 	
 	public GameManager(long targetFps, EntitySystem entitySystem, GameWindow window){
 		es = entitySystem;
@@ -34,6 +34,7 @@ public class GameManager {
 		t = 0;
 		dt = (long) (Math.pow(10,9)/targetFps);
 		//events = new ArrayList<>();
+		keyManagers = new ArrayList<>();
 	}
 	
 	public void start() throws InterruptedException, ExecutionException{
@@ -72,7 +73,9 @@ public class GameManager {
 	}
 	
 	private void processPhase() throws InterruptedException, ExecutionException{
-		KeylogManager.fetchKeys();
+		for(KeyManager km : keyManagers){
+			km.fetchKeys();
+		}
 		es.updateFetchers();
 		
 		List<Routine> routineQueue = new ArrayList<Routine>(currentPhase.getRoutines());
@@ -94,7 +97,7 @@ public class GameManager {
 				r.setGame(this);
 				List<Class<? extends Component>> keySet = new ArrayList<>(routinesExecuting.keySet());
 				if(r.dependencies() != null){
-					List<Class<? extends Component>> dependencies = Arrays.asList(r.dependencies());
+					List<Class<? extends Component>> dependencies = r.dependencies();
 					if(Collections.disjoint(keySet, dependencies)){
 						Future<?> future = executor.submit(r);
 						for(Class<? extends Component> c : dependencies)
@@ -122,6 +125,13 @@ public class GameManager {
 		currentPhase = phase;
 		//events.addAll(phase.getEvents());
 		newPhase = true;
+	}
+	
+	public void assignKeyManagers(KeyManager...keyManagers){
+		for(KeyManager km : keyManagers){
+			this.keyManagers.add(km);
+		}
+		window.assignKeyManagers(keyManagers);
 	}
 	
 	/*

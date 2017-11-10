@@ -20,6 +20,7 @@ public class ModelManager extends AssetType<RawModel> {
 	private GL3 gl;
 
 	public ModelManager() {
+		super("models", "obj");
 		loader = new VAOLoader();
 	}
 
@@ -27,19 +28,9 @@ public class ModelManager extends AssetType<RawModel> {
 		return assets().get(filename);
 	}
 
-	@Override
-	public String folderName() {
-		return "models";
-	}
-
-	@Override
-	public String extension() {
-		return "obj";
-	}
-
 	public void preload(GL3 gl) {
 		this.gl = gl;
-		loadFromDir(folderName());
+		loadFromDir(folderName);
 	}
 
 	@Override

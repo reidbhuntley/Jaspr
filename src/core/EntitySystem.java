@@ -1,12 +1,8 @@
 package core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,7 +11,7 @@ public class EntitySystem {
 	protected static EntitySystem es;
 	private List<Class<? extends Component>> componentIndex;
 	private HashMap<Class<? extends Component>, HashMap<Entity, Component>> componentTables;
-	private HashMap<Class<? extends Component>, List<EntityFetcher>> entityFetchers;
+	private HashMap<Class<? extends Component>, EntityFetcher> entityFetchers;
 	private HashMap<Class<? extends Component>, List<Entity>> componentsAdded, componentsRemoved;
 	private AtomicInteger nextAvailableEntityID;
 	ThreadLocal<Routine> context;
@@ -37,7 +33,6 @@ public class EntitySystem {
 					@Override public void assertDependency(Class<? extends Component> type) {}
 					@Override public void onPhaseStart() {}
 					@Override public void routine() {}
-					@Override public Class<? extends Component>[] dependencies() { return null; }
 				};
 			}
 		};
@@ -55,7 +50,7 @@ public class EntitySystem {
 		if (!componentTables.containsKey(type)) {
 			componentIndex.add(type);
 			componentTables.put(type, new HashMap<>());
-			entityFetchers.put(type, new ArrayList<EntityFetcher>());
+			entityFetchers.put(type, new EntityFetcher());
 		}
 	}
 
@@ -81,7 +76,8 @@ public class EntitySystem {
 		registerComponent(c);
 		return componentTables.get(c).containsKey(e);
 	}
-
+	
+	/*
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<Entity> getAllEntitiesPossessing(Class... classes) {
 		List<Entity> out = new ArrayList<>();
@@ -119,6 +115,7 @@ public class EntitySystem {
 		else
 			return getAllEntitiesPossessing(componentTables.keySet().toArray(new Class[0]));
 	}
+	*/
 
 	@SuppressWarnings("unchecked")
 	public Class<? extends Component>[] getComponentTypes() {
@@ -175,17 +172,12 @@ public class EntitySystem {
 					"The clone method of " + type + " does not return an object of its own type");
 	}
 
-	public EntityFetcher genEntityFetcher(Class<? extends Component> component) {
-		List<Entity> entities = new ArrayList<>();
+	public EntityFetcher getEntityFetcher(Class<? extends Component> component) {
 		registerComponent(component);
-		entities.addAll(componentTables.get(component).keySet());
-		EntityFetcher fetcher = new EntityFetcher();
-		registerComponent(component);
-		entityFetchers.get(component).add(fetcher);
-		return fetcher;
+		return entityFetchers.get(component);
 	}
 	
-	public SingletonFetcher genSingletonFetcher(Class<? extends Component> component){
+	public SingletonFetcher getSingletonFetcher(Class<? extends Component> component){
 		return new SingletonFetcher(this, component);
 	}
 
@@ -193,15 +185,14 @@ public class EntitySystem {
 		for (Class<? extends Component> c : entityFetchers.keySet()) {
 			List<Entity> entitiesAdded = componentsAdded.get(c);
 			List<Entity> entitiesRemoved = componentsRemoved.get(c);
-			for (EntityFetcher fetcher : entityFetchers.get(c)) {
-				if (fetcher.isNew()) {
-					fetcher.addEnts(componentTables.get(c).keySet());
-				} else {
-					if (entitiesAdded != null)
-						fetcher.addEnts(entitiesAdded);
-					if (entitiesRemoved != null)
-						fetcher.removeEnts(entitiesRemoved);
-				}
+			EntityFetcher fetcher = entityFetchers.get(c);
+			if (fetcher.isNew()) {
+				fetcher.addEnts(componentTables.get(c).keySet());
+			} else {
+				if (entitiesAdded != null)
+					fetcher.addEnts(entitiesAdded);
+				if (entitiesRemoved != null)
+					fetcher.removeEnts(entitiesRemoved);
 			}
 		}
 		componentsAdded.clear();
@@ -245,7 +236,7 @@ public class EntitySystem {
 		private Class<? extends Component> c;
 		private SingletonFetcher(EntitySystem es, Class<? extends Component> type){
 			c = type;
-			fetcher = es.genEntityFetcher(c);
+			fetcher = es.getEntityFetcher(c);
 			entity = null;
 		}
 		public Entity fetch(){

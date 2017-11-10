@@ -1,9 +1,13 @@
 package core;
 
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.ActionEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.KeyStroke;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -32,31 +36,73 @@ public final class GameWindow implements GLEventListener {
 		WIDTH = width;
 		HEIGHT = height;
 		this.renderer = renderer;
-		this.models  = models;
+		this.models = models;
 		this.textures = textures;
-		
+
 		final GLProfile profile = GLProfile.get(GLProfile.GL3);
 		GLCapabilities capabilities = new GLCapabilities(profile);
 		canvas = new GLCanvas(capabilities);
 		canvas.addGLEventListener(this);
 		canvas.setSize(WIDTH, HEIGHT);
-		
+
 		window = new JFrame();
 		window.setUndecorated(true);
 		window.getContentPane().add(canvas);
 		window.pack();
 		window.setLocationRelativeTo(null);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		canvas.addKeyListener(new KeylogReciever());
 		canvas.requestFocus();
+	}
+
+	protected void assignKeyManagers(KeyManager... keyManagers) {
+		ActionMap actionMap = window.getRootPane().getActionMap();
+		InputMap inputMap = window.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+		for (KeyManager km : keyManagers) {
+			for (int k : km.getKeysListening()) {
+				KeyStroke stroke = KeyStroke.getKeyStroke(k, 0, false);
+				String str = stroke.toString();
+				inputMap.put(stroke, str);
+				actionMap.put(str, new KeyBinding(str, km, k, false));
+				
+				stroke = KeyStroke.getKeyStroke(k, 0, true);
+				str = stroke.toString();
+				inputMap.put(stroke, str);
+				actionMap.put(str, new KeyBinding(str, km, k, true));
+			}
+		}
+	}
+
+	private class KeyBinding extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+		private KeyManager km;
+		private boolean isRelease;
+		private int event;
+
+		public KeyBinding(String text, KeyManager km, int event, boolean isRelease) {
+			super(text);
+			putValue(ACTION_COMMAND_KEY, text);
+			this.event = event;
+			this.km = km;
+			this.isRelease = isRelease;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (!isRelease) {
+				km.addKeyPressed(event);
+			} else {
+				km.addKeyReleased(event);
+			}
+		}
+
 	}
 
 	protected void display() {
 		window.setVisible(true);
 		canvas.display();
 	}
-	
-	protected void assignEntitySystem(EntitySystem es){
+
+	protected void assignEntitySystem(EntitySystem es) {
 		this.es = es;
 	}
 
@@ -68,18 +114,18 @@ public final class GameWindow implements GLEventListener {
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		GL3 gl = drawable.getGL().getGL3();
-		if(renderer != null && es != null)
+		if (renderer != null && es != null)
 			renderer.render(gl, glu, es);
 	}
 
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
 		GL3 gl = drawable.getGL().getGL3();
-		if(renderer != null)
+		if (renderer != null)
 			renderer.dispose(gl);
-		if(models != null)
+		if (models != null)
 			models.cleanUp();
-		if(textures != null)
+		if (textures != null)
 			textures.cleanUp();
 	}
 
@@ -87,13 +133,10 @@ public final class GameWindow implements GLEventListener {
 	public void init(GLAutoDrawable drawable) {
 		GL3 gl = drawable.getGL().getGL3();
 		glu = new GLU();
-		
-		if(models != null)
-			models.preload(gl);
-		if(textures != null)
-			textures.preload(gl);
-		if(renderer != null)
-			renderer.init(gl, es, WIDTH, HEIGHT, textures.defaultTexture());
+
+		models.preload(gl);
+		textures.preload(gl);
+		renderer.init(gl, es, WIDTH, HEIGHT, textures.defaultTexture());
 	}
 
 	@Override
@@ -104,20 +147,6 @@ public final class GameWindow implements GLEventListener {
 			height = 1; // prevent divide by zero
 		// Set the view port (display area) to cover the entire window
 		gl.glViewport(0, 0, width, height);
-	}
-
-	private class KeylogReciever extends KeyAdapter {
-
-		@Override
-		public void keyPressed(KeyEvent e) {
-			KeylogManager.addKeyPressed(e);
-		}
-
-		@Override
-		public void keyReleased(KeyEvent e) {
-			KeylogManager.addKeyReleased(e);
-		}
-
 	}
 
 }

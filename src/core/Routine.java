@@ -10,15 +10,13 @@ public abstract class Routine implements Runnable {
 	private List<Class<? extends Component>> dependencies;
 	private GameManager gm;
 	
-	public Routine(){
-		super();
-		if(dependencies() != null){
-			dependencies = Arrays.asList(dependencies());
-			for(Class<? extends Component> c : dependencies){
-				if(!Component.class.isAssignableFrom(c))
-					throw new IllegalArgumentException("Classes in this Routine's dependencies must be child classes of Dependency");
-			}
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Routine(Class... dependencies){
+		for(Class c : dependencies){
+			if(!Component.class.isAssignableFrom(c))
+				throw new IllegalArgumentException("Classes in this Routine's dependencies must be child classes of Dependency");
 		}
+		this.dependencies = Arrays.asList(dependencies);
 		
 		if(!initialized.contains(getClass())){
 			onInit();
@@ -36,6 +34,10 @@ public abstract class Routine implements Runnable {
 		}
 	}
 	
+	public List<Class<? extends Component>> dependencies(){
+		return dependencies;
+	}
+	
 	public void assertDependency(Class<? extends Component> type){
 		if(dependencies == null || !dependencies.contains(type))
 			throw new IllegalArgumentException("Dependency " + type.getName() + " is not in this Routine's dependencies");
@@ -46,7 +48,6 @@ public abstract class Routine implements Runnable {
 	}
 	
 	public abstract void routine();
-	public abstract Class<? extends Component>[] dependencies();
 	public abstract void onInit();
 	public abstract void onPhaseStart();
 	public abstract void onPhaseEnd();

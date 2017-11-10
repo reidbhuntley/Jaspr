@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.math.Matrix4;
 
 public abstract class ShadersProgram {
 
@@ -61,8 +62,8 @@ public abstract class ShadersProgram {
 		gl.glUniform1f(location, toLoad);
 	}
 
-	protected void loadMatrix(int location, float[] matrix) {
-		gl.glUniformMatrix4fv(location, 1, false, matrix, 0);
+	protected void loadMatrix(int location, Matrix4 matrix) {
+		gl.glUniformMatrix4fv(location, 1, false, matrix.getMatrix(), 0);
 	}
 
 	public void start() {

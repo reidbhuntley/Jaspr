@@ -16,9 +16,7 @@ import jaspr3d.shaders.StaticShader;
 
 public class Renderer {
 
-	private final float FOV;
-	private final float NEAR_PLANE;
-	private final float FAR_PLANE;
+	private final float NEAR_PLANE, FAR_PLANE, FOV;
 	private final HashMap<TexturedModel,List<Position3>> worldModels;
 	
 	private Texture defaultTexture;
@@ -26,13 +24,14 @@ public class Renderer {
 	private EntityFetcher rawModels, texturedModels;
 	private SingletonFetcher lights, cameras;
 	private Matrix4 projectionMatrix;
+	private ViewFrustum frustum;
 
 	private static StaticShader shader;
 	
 	public Renderer(float fov, float nearPlane, float farPlane){
-		FOV = fov;
 		NEAR_PLANE = nearPlane;
 		FAR_PLANE = farPlane;
+		FOV = fov;
 		worldModels = new HashMap<>();
 	}
 	
@@ -47,7 +46,8 @@ public class Renderer {
 		lights = es.getSingletonFetcher(Light.class);
 		cameras = es.getSingletonFetcher(Camera.class);
 		
-		projectionMatrix = createProjectionMatrix(WIDTH, HEIGHT, FOV, NEAR_PLANE, FAR_PLANE);
+		frustum = new ViewFrustum(WIDTH, HEIGHT, FOV, NEAR_PLANE, FAR_PLANE);
+		projectionMatrix = frustum.getProjectionMatrix();
 		
 		shader = new StaticShader(gl);
 		gl.glActiveTexture(GL3.GL_TEXTURE0);
@@ -66,6 +66,7 @@ public class Renderer {
 		
 		gl.glClearColor(1,1,1,0);
 		gl.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT);
+		
 		
 		for (Entity e : rawModels.fetch()) {
 			RawModel model = e.getAs(RawModel.class);
@@ -101,19 +102,20 @@ public class Renderer {
 		shader.start();
 		
 		Camera camera = (Camera) cameras.fetchComponent();
-		if(camera != null){
-			camera.updateTransformations();
-			shader.loadCameraPosition(camera);
-		} else {
-			shader.loadCameraPosition(new Camera());
-		}
+		if(camera == null)
+			camera = new Camera();
+		camera.updateTransformations();
+		Camera testCam = new Camera();
+		testCam.set(0,0,0,90,0,0);
+		testCam.updateTransformations();
+		frustum.genPlanes(camera);
+		shader.loadCameraPosition(camera);
+		
 		
 		Light light = (Light) lights.fetchComponent();
-		if(light != null){
-			shader.loadLight(light);
-		} else {
-			shader.loadLight(new Light(0,0,0,1,1,1));
-		}
+		if(light == null)
+			light = new Light(0,0,0,1,1,1);
+		shader.loadLight(light);
 		
 		for(TexturedModel tModel : worldModels.keySet()){
 			Texture texture = tModel.getTexture();
@@ -124,6 +126,7 @@ public class Renderer {
 			gl.glBindTexture(GL3.GL_TEXTURE_2D, texture.getID());
 			shader.loadShineVariables(texture.getShineDamper(), texture.getReflectivity());
 			
+			
 			for(Position3 pos : positions){
 				pos.updateTransformations();
 				Matrix4 transformations = new Matrix4();
@@ -131,30 +134,22 @@ public class Renderer {
 				transformations.multMatrix(projectionMatrix);
 				transformations.multMatrix(camera.getTransformations());
 				transformations.multMatrix(pos.getTransformations());
+				
+				if(!frustum.sphereIntersects(Vector3.add(pos.getVec(), model.getCenter()), model.getRadius()))
+					continue;
+				
 				shader.loadMvpMatrix(transformations);
 				shader.loadWorldMatrix(pos.getTransformations());
 				gl.glDrawElements(GL3.GL_TRIANGLES, model.getIndicesCount(), GL3.GL_UNSIGNED_INT, 0);
 			}
 			gl.glBindVertexArray(0);
+			
 		}
 		
 		shader.stop();
 		gl.glFlush();
 		
 		worldModels.clear();
-	}
-
-	private Matrix4 createProjectionMatrix(int width, int height, float fov, float near_plane, float far_plane) {
-		final float aspectRatio = (float) width / (float) height;
-		final float y_scale = (float) ((1f / Math.tan(Math.toRadians(fov / 2f))) * aspectRatio);
-		final float x_scale = y_scale / aspectRatio;
-		final float frustum_length = far_plane - near_plane;
-		final float[] pMat = { x_scale, 0, 0, 0, 0, y_scale, 0, 0, 0, 0, -((far_plane + near_plane) / frustum_length),
-				-1, 0, 0, -((2 * near_plane * far_plane) / frustum_length), 0 };
-		Matrix4 mat = new Matrix4();
-		mat.loadIdentity();
-		mat.multMatrix(pMat);
-		return mat;
 	}
 	
 }

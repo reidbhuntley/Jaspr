@@ -19,7 +19,7 @@ import res.TextureManager;
 public class Test3D {
 
 	public static final int WINDOW_WIDTH = 1400, WINDOW_HEIGHT = 1000, DESIRED_FPS = 100;
-	public static final float FOV = 70, NEAR_FRAME = 0.1f, FAR_FRAME = 1000;
+	public static final float FOV = 70, NEAR_FRAME = 0.1f, FAR_FRAME = 3000;
 	public static ModelManager models;
 	public static TextureManager textures;
 	public static KeyManager keys;

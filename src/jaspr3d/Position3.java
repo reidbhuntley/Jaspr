@@ -5,10 +5,14 @@ import com.jogamp.opengl.math.Matrix4;
 import core.Component;
 
 public class Position3 extends Component {
-	private float x, y, z;
+	private Vector3 vec;
 	private float pitch, yaw, roll;
 	private Matrix4 transformationMatrix;
 	private boolean needsUpdate;
+	
+	public Position3(Position3 pos){
+		this(pos.x(),pos.y(),pos.z(),pos.pitch(),pos.yaw(),pos.roll());
+	}
 
 	public Position3(float x, float y, float z, float pitch, float yaw, float roll) {
 		set(x, y, z, pitch, yaw, roll);
@@ -23,26 +27,25 @@ public class Position3 extends Component {
 		this(0, 0, 0, 0, 0, 0);
 	}
 
-	public float[] coords() {
-		float[] vec3 = { x, y, z };
-		return vec3;
+	public Vector3 getVec() {
+		return new Vector3(vec);
 	}
 
-	public float[] rots() {
+	public float[] getRots() {
 		float[] vec3 = { pitch, yaw, roll };
 		return vec3;
 	}
 	
 	public float x(){
-		return x;
+		return vec.x();
 	}
 	
 	public float y(){
-		return y;
+		return vec.y();
 	}
 	
 	public float z(){
-		return z;
+		return vec.z();
 	}
 	
 	public float pitch(){
@@ -57,34 +60,64 @@ public class Position3 extends Component {
 		return roll;
 	}
 
-	public void transform(float dx, float dy, float dz, float dpitch, float dyaw, float droll) {
-		this.x += dx;
-		this.y += dy;
-		this.z += dz;
+	public void transform(Vector3 vec, float dpitch, float dyaw, float droll) {
+		this.vec.add(vec);
 		this.pitch += dpitch;
 		this.yaw += dyaw;
 		this.roll += droll;
 		needsUpdate = true;
 	}
+	
+	public void transform(float dx, float dy, float dz, float dpitch, float dyaw, float droll) {
+		this.transform(new Vector3(dx,dy,dz), dpitch, dyaw, droll);
+		needsUpdate = true;
+	}
+	
+	public void move(Vector3 vec) {
+		transform(vec, 0, 0, 0);
+	}
 
 	public void move(float x, float y, float z) {
-		transform(x, y, z, 0, 0, 0);
+		move(new Vector3(x,y,z));
+	}
+	
+	public Vector3 getForwardVec(){
+		float[] mat = transformationMatrix.getMatrix();
+		Vector3 pos = new Vector3(-mat[2],-mat[6],-mat[10]);
+		pos.normalize();
+		return pos;
+	}
+	
+	public Vector3 getRightVec(){
+		float[] mat = transformationMatrix.getMatrix();
+		Vector3 pos = new Vector3(mat[0],mat[4],mat[8]);
+		pos.normalize();
+		return pos;
+	}
+	
+	public Vector3 getUpVec(){
+		float[] mat = transformationMatrix.getMatrix();
+		Vector3 pos = new Vector3(mat[1],mat[5],mat[9]);
+		pos.normalize();
+		return pos;
 	}
 	
 	public void moveForward(float dist){
-		float[] mat = transformationMatrix.getMatrix();
-		dist *= -1;
-		transform(mat[2]*dist,mat[6]*dist,mat[10]*dist,0,0,0);
+		Vector3 pos = getForwardVec();
+		pos.scale(dist);
+		move(pos.x(),pos.y(),pos.z());
 	}
 	
 	public void moveRight(float dist){
-		float[] mat = transformationMatrix.getMatrix();
-		transform(mat[0]*dist,mat[4]*dist,mat[8]*dist,0,0,0);
+		Vector3 pos = getRightVec();
+		pos.scale(dist);
+		move(pos.x(),pos.y(),pos.z());
 	}
 	
 	public void moveUp(float dist){
-		float[] mat = transformationMatrix.getMatrix();
-		transform(mat[1]*dist,mat[5]*dist,mat[9]*dist,0,0,0);
+		Vector3 pos = getUpVec();
+		pos.scale(dist);
+		move(pos.x(),pos.y(),pos.z());
 	}
 
 	public void rotate(float pitch, float yaw, float roll) {
@@ -92,9 +125,7 @@ public class Position3 extends Component {
 	}
 
 	public void set(float x, float y, float z, float pitch, float yaw, float roll) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		vec = new Vector3(x,y,z);
 		this.pitch = pitch;
 		this.yaw = yaw;
 		this.roll = roll;
@@ -132,7 +163,7 @@ public class Position3 extends Component {
 	
 	public void updateTransformations(){
 		if(needsUpdate){
-			transformationMatrix = createTransformationMatrix(x, y, z, pitch, yaw, roll);
+			transformationMatrix = createTransformationMatrix(x(), y(), z(), pitch, yaw, roll);
 			needsUpdate = false;
 		}
 	}
@@ -143,4 +174,5 @@ public class Position3 extends Component {
 		mat.multMatrix(transformationMatrix);
 		return mat;
 	}
+	
 }

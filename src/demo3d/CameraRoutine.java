@@ -4,8 +4,6 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import core.Entity;
-import core.EntitySystem.EntityFetcher;
 import core.EntitySystem.SingletonFetcher;
 import core.Routine;
 import jaspr3d.Camera;
@@ -14,16 +12,15 @@ import jaspr3d.Position3;
 import jaspr3d.RawModel;
 import jaspr3d.Texture;
 
-public class MovementRoutine extends Routine {
+public class CameraRoutine extends Routine {
 
 	private static SingletonFetcher cameras;
-	private static EntityFetcher positions;
 	
 	private static int lastX = 0, lastY = 0;
 	private static List<Position2> mouseList = new ArrayList<>();
 	private static final int MOUSE_LIST_MAX = 5;
 	
-	public MovementRoutine(){
+	public CameraRoutine(){
 		super(Camera.class, Position3.class, RawModel.class, Texture.class);
 	}
 	
@@ -31,21 +28,18 @@ public class MovementRoutine extends Routine {
 	public void routine() {
 		if (Test3D.keys.down(KeyEvent.VK_ESCAPE))
 			Test3D.game.quit();
-
+		
 		Camera camera = (Camera) cameras.fetchComponent();
 		
 		float fwd = 0, right = 0;
 		if (Test3D.keys.down(KeyEvent.VK_W))
-			fwd = 3;
+			fwd += 3;
 		if (Test3D.keys.down(KeyEvent.VK_S))
-			fwd = -3;
+			fwd += -3;
 		if (Test3D.keys.down(KeyEvent.VK_A))
-			right = -3;
+			right += -3;
 		if (Test3D.keys.down(KeyEvent.VK_D))
-			right = 3;
-		if (Test3D.keys.down(KeyEvent.VK_SPACE)){
-			new Entity(Test3D.models.get("man.obj"), Test3D.textures.get("pepe.png"), new Position3(camera.x(),camera.y() - 25,camera.z()));
-		}
+			right += 3;
 		
 		Position2 mouse = Test3D.mouse.position();
 		int x = (int)mouse.x(), y = (int)mouse.y();
@@ -63,6 +57,7 @@ public class MovementRoutine extends Routine {
 		}
 		avgX /= mouseList.size();
 		avgY /= mouseList.size();
+		
 		camera.rotate((float)avgY/15, (float)avgX/15, 0.0f);
 		
 		if(Math.hypot(x, y) > 10){
@@ -73,11 +68,6 @@ public class MovementRoutine extends Routine {
 		
 		camera.moveForward(fwd);
 		camera.moveRight(right);
-
-		
-		for(Entity e : positions.fetch()){
-			e.getAs(Position3.class).rotate(1, 1, 1);
-		}
 		
 		//System.out.println(Test3D.game.actualFps());
 	}
@@ -85,7 +75,6 @@ public class MovementRoutine extends Routine {
 	@Override
 	public void onInit() {
 		cameras = Test3D.es.getSingletonFetcher(Camera.class);
-		positions = Test3D.es.getEntityFetcher(Position3.class);
 	}
 
 	@Override

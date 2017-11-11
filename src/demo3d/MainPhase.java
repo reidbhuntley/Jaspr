@@ -7,7 +7,7 @@ public class MainPhase extends GamePhase{
 	
 	@Override
 	public Routine[] routines() {
-		Routine[] routines = {new MovementRoutine()};
+		Routine[] routines = {new CameraRoutine(), new RotationRoutine(), new SpawningRoutine()};
 		return routines;
 	}
 

@@ -13,6 +13,7 @@ import de.javagl.obj.ObjFace;
 import de.javagl.obj.ObjReader;
 import jaspr3d.RawModel;
 import jaspr3d.VAOLoader;
+import jaspr3d.Vector3;
 
 public class ModelManager extends AssetType<RawModel> {
 
@@ -50,12 +51,23 @@ public class ModelManager extends AssetType<RawModel> {
 		float[] normalsArray = new float[obj.getNumVertices() * 3];
 		float[] textureArray = new float[obj.getNumVertices() * 2];
 		int[] indicesArray = null;
+		
+		float xTotal = 0, yTotal = 0, zTotal = 0;
+		float magMax = 0;
 
 		for (int i = 0; i < obj.getNumVertices(); i++) {
 			FloatTuple vertex = obj.getVertex(i);
-			verticesArray[i * 3] = vertex.getX();
-			verticesArray[i * 3 + 1] = vertex.getY();
-			verticesArray[i * 3 + 2] = vertex.getZ();
+			float x = vertex.getX(), y = vertex.getY(), z = vertex.getZ();
+			verticesArray[i * 3] = x;
+			verticesArray[i * 3 + 1] = y;
+			verticesArray[i * 3 + 2] = z;
+			xTotal += x;
+			yTotal += y;
+			zTotal += z;
+			float mag = (float)Math.sqrt(x*x+y*y+z*z);
+			if(mag > magMax){
+				magMax = mag;
+			}
 		}
 		for (int i = 0; i < obj.getNumNormals(); i++) {
 			normals.add(obj.getNormal(i));
@@ -104,7 +116,11 @@ public class ModelManager extends AssetType<RawModel> {
 		for (int i = 0; i < indicesArray.length; i++) {
 			indicesArray[i] = indices.get(i);
 		}
-		RawModel model = loader.loadToVAO(gl, indicesArray, verticesArray, normalsArray, textureArray);
+		
+		float invNumVertices = 3/verticesArray.length;
+		Vector3 center = new Vector3(xTotal,yTotal,zTotal);
+		center.scale(invNumVertices);
+		RawModel model = loader.loadToVAO(center, magMax, gl, indicesArray, verticesArray, normalsArray, textureArray);
 		return model;
 	}
 

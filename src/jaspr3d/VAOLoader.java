@@ -21,7 +21,7 @@ public class VAOLoader {
 		vbos = new ArrayList<>();
 	}
 
-	public RawModel loadToVAO(GL3 gl, int[] indices, float[] vertices, float[] normals, float[] texCoords) {
+	public RawModel loadToVAO(Vector3 center, float radius, GL3 gl, int[] indices, float[] vertices, float[] normals, float[] texCoords) {
 		currentVbos = new HashMap<>();
 		this.gl = gl;
 		int vaoID = createVAO();
@@ -30,7 +30,7 @@ public class VAOLoader {
 		storeAttribute(ATTR_TEXCOORDS, texCoords, 2);
 		storeAttribute(ATTR_NORMALS, normals, 3);
 		unbindVAO();
-		return new RawModel(currentVbos, vaoID, vertices.length / 3, indices.length);
+		return new RawModel(currentVbos, vaoID, vertices.length / 3, indices.length, center, radius);
 	}
 
 	public void cleanUp() {

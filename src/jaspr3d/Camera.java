@@ -2,7 +2,7 @@ package jaspr3d;
 
 import com.jogamp.opengl.math.Matrix4;
 
-public class Camera extends Position {
+public class Camera extends Position3 {
 
 	@Override
 	public Matrix4 createTransformationMatrix(float x, float y, float z, float pitch, float yaw, float roll) {

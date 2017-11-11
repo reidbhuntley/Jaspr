@@ -4,22 +4,22 @@ import com.jogamp.opengl.math.Matrix4;
 
 import core.Component;
 
-public class Position extends Component {
+public class Position3 extends Component {
 	private float x, y, z;
 	private float pitch, yaw, roll;
 	private Matrix4 transformationMatrix;
 	private boolean needsUpdate;
 
-	public Position(float x, float y, float z, float pitch, float yaw, float roll) {
+	public Position3(float x, float y, float z, float pitch, float yaw, float roll) {
 		set(x, y, z, pitch, yaw, roll);
 		updateTransformations();
 	}
 
-	public Position(float x, float y, float z) {
+	public Position3(float x, float y, float z) {
 		this(x, y, z, 0, 0, 0);
 	}
 
-	public Position() {
+	public Position3() {
 		this(0, 0, 0, 0, 0, 0);
 	}
 
@@ -28,7 +28,7 @@ public class Position extends Component {
 		return vec3;
 	}
 
-	public float[] rot() {
+	public float[] rots() {
 		float[] vec3 = { pitch, yaw, roll };
 		return vec3;
 	}
@@ -69,6 +69,22 @@ public class Position extends Component {
 
 	public void move(float x, float y, float z) {
 		transform(x, y, z, 0, 0, 0);
+	}
+	
+	public void moveForward(float dist){
+		float[] mat = transformationMatrix.getMatrix();
+		dist *= -1;
+		transform(mat[2]*dist,mat[6]*dist,mat[10]*dist,0,0,0);
+	}
+	
+	public void moveRight(float dist){
+		float[] mat = transformationMatrix.getMatrix();
+		transform(mat[0]*dist,mat[4]*dist,mat[8]*dist,0,0,0);
+	}
+	
+	public void moveUp(float dist){
+		float[] mat = transformationMatrix.getMatrix();
+		transform(mat[1]*dist,mat[5]*dist,mat[9]*dist,0,0,0);
 	}
 
 	public void rotate(float pitch, float yaw, float roll) {

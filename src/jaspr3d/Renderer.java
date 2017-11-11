@@ -19,7 +19,7 @@ public class Renderer {
 	private final float FOV;
 	private final float NEAR_PLANE;
 	private final float FAR_PLANE;
-	private final HashMap<TexturedModel,List<Position>> worldModels;
+	private final HashMap<TexturedModel,List<Position3>> worldModels;
 	
 	private Texture defaultTexture;
 	private int WIDTH, HEIGHT;
@@ -64,7 +64,7 @@ public class Renderer {
 		gl.glEnable(GL3.GL_CULL_FACE);
 		gl.glCullFace(GL3.GL_BACK);
 		
-		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		gl.glClearColor(1,1,1,0);
 		gl.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT);
 		
 		for (Entity e : rawModels.fetch()) {
@@ -76,9 +76,9 @@ public class Renderer {
 				texture = defaultTexture;
 			}
 			
-			Position pos = e.getAs(Position.class);
+			Position3 pos = e.getAs(Position3.class);
 			if(pos == null)
-				pos = new Position();
+				pos = new Position3();
 			
 			TexturedModel tModel = new TexturedModel(model,texture);
 			if(!worldModels.containsKey(tModel))
@@ -89,9 +89,9 @@ public class Renderer {
 		for (Entity e : texturedModels.fetch()) {
 			TexturedModel tModel = e.getAs(TexturedModel.class);
 			
-			Position pos = e.getAs(Position.class);
+			Position3 pos = e.getAs(Position3.class);
 			if(pos == null)
-				pos = new Position();
+				pos = new Position3();
 			
 			if(!worldModels.containsKey(tModel))
 				worldModels.put(tModel, new ArrayList<>());
@@ -104,23 +104,27 @@ public class Renderer {
 		if(camera != null){
 			camera.updateTransformations();
 			shader.loadCameraPosition(camera);
+		} else {
+			shader.loadCameraPosition(new Camera());
 		}
 		
 		Light light = (Light) lights.fetchComponent();
 		if(light != null){
 			shader.loadLight(light);
+		} else {
+			shader.loadLight(new Light(0,0,0,1,1,1));
 		}
 		
 		for(TexturedModel tModel : worldModels.keySet()){
 			Texture texture = tModel.getTexture();
 			RawModel model = tModel.getModel();
-			List<Position> positions = worldModels.get(tModel);
+			List<Position3> positions = worldModels.get(tModel);
 			
 			gl.glBindVertexArray(model.getVaoID());
 			gl.glBindTexture(GL3.GL_TEXTURE_2D, texture.getID());
 			shader.loadShineVariables(texture.getShineDamper(), texture.getReflectivity());
 			
-			for(Position pos : positions){
+			for(Position3 pos : positions){
 				pos.updateTransformations();
 				Matrix4 transformations = new Matrix4();
 				transformations.loadIdentity();

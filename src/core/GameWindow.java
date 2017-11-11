@@ -1,6 +1,10 @@
 package core;
 
+import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -52,23 +56,39 @@ public final class GameWindow implements GLEventListener {
 		window.setLocationRelativeTo(null);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		canvas.requestFocus();
+		
+		
+		// Transparent 16 x 16 pixel cursor image.
+		BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+
+		// Create a new blank cursor.
+		Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+		    cursorImg, new Point(0, 0), "blank cursor");
+
+		// Set the blank cursor to the JFrame.
+		window.getContentPane().setCursor(blankCursor);
+		
+	}
+	
+	public void assignMouseManager(MouseManager mouseManager) {
+		mouseManager.assignToWindow(window);
+		canvas.addMouseListener(mouseManager);
+		canvas.addMouseMotionListener(mouseManager);
 	}
 
-	protected void assignKeyManagers(KeyManager... keyManagers) {
+	protected void assignKeyManager(KeyManager keyManager) {
 		ActionMap actionMap = window.getRootPane().getActionMap();
 		InputMap inputMap = window.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-		for (KeyManager km : keyManagers) {
-			for (int k : km.getKeysListening()) {
-				KeyStroke stroke = KeyStroke.getKeyStroke(k, 0, false);
-				String str = stroke.toString();
-				inputMap.put(stroke, str);
-				actionMap.put(str, new KeyBinding(str, km, k, false));
-				
-				stroke = KeyStroke.getKeyStroke(k, 0, true);
-				str = stroke.toString();
-				inputMap.put(stroke, str);
-				actionMap.put(str, new KeyBinding(str, km, k, true));
-			}
+		for (int k : keyManager.getKeysListening()) {
+			KeyStroke stroke = KeyStroke.getKeyStroke(k, 0, false);
+			String str = stroke.toString();
+			inputMap.put(stroke, str);
+			actionMap.put(str, new KeyBinding(str, keyManager, k, false));
+			
+			stroke = KeyStroke.getKeyStroke(k, 0, true);
+			str = stroke.toString();
+			inputMap.put(stroke, str);
+			actionMap.put(str, new KeyBinding(str, keyManager, k, true));
 		}
 	}
 

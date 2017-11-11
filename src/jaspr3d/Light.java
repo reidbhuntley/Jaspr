@@ -1,6 +1,6 @@
 package jaspr3d;
 
-public class Light extends Position {
+public class Light extends Position3 {
 	
 	private float r,g,b;
 

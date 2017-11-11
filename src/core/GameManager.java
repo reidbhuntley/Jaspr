@@ -22,6 +22,7 @@ public class GameManager {
 	private double actualFps;
 	private GameWindow window;
 	private List<KeyManager> keyManagers;
+	private List<MouseManager> mouseManagers;
 	
 	public GameManager(long targetFps, EntitySystem entitySystem, GameWindow window){
 		es = entitySystem;
@@ -35,6 +36,7 @@ public class GameManager {
 		dt = (long) (Math.pow(10,9)/targetFps);
 		//events = new ArrayList<>();
 		keyManagers = new ArrayList<>();
+		mouseManagers = new ArrayList<>();
 	}
 	
 	public void start() throws InterruptedException, ExecutionException{
@@ -76,6 +78,10 @@ public class GameManager {
 		for(KeyManager km : keyManagers){
 			km.fetchKeys();
 		}
+		for(MouseManager mm : mouseManagers){
+			mm.fetchEvents();
+		}
+		
 		es.updateFetchers();
 		
 		List<Routine> routineQueue = new ArrayList<Routine>(currentPhase.getRoutines());
@@ -130,8 +136,15 @@ public class GameManager {
 	public void assignKeyManagers(KeyManager...keyManagers){
 		for(KeyManager km : keyManagers){
 			this.keyManagers.add(km);
+			window.assignKeyManager(km);
 		}
-		window.assignKeyManagers(keyManagers);
+	}
+	
+	public void assignMouseManagers(MouseManager...mouseManagers){
+		for(MouseManager mm : mouseManagers){
+			this.mouseManagers.add(mm);
+			window.assignMouseManager(mm);
+		}
 	}
 	
 	/*

@@ -8,9 +8,10 @@ import core.EntitySystem;
 import core.GameManager;
 import core.GameWindow;
 import core.KeyManager;
+import core.MouseManager;
 import jaspr3d.Camera;
 import jaspr3d.Light;
-import jaspr3d.Position;
+import jaspr3d.Position3;
 import jaspr3d.Renderer;
 import res.ModelManager;
 import res.TextureManager;
@@ -22,6 +23,7 @@ public class Test3D {
 	public static ModelManager models;
 	public static TextureManager textures;
 	public static KeyManager keys;
+	public static MouseManager mouse;
 	public static GameManager game;
 	public static EntitySystem es;
 
@@ -34,15 +36,18 @@ public class Test3D {
 
 		game = new GameManager(DESIRED_FPS, es, window);
 		
-		keys = new KeyManager(KeyEvent.VK_ESCAPE, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_SPACE);
+		keys = new KeyManager(KeyEvent.VK_ESCAPE, KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_SPACE);
 		game.assignKeyManagers(keys);
+		
+		mouse = new MouseManager();
+		game.assignMouseManagers(mouse);
 
 		new Entity(new Camera());
-		new Entity(new Light(0, 5, 0, 1, 1, 1), new Position(0, 5, -60));
+		new Entity(new Light(0, 5, 0, 1, 1, 1));
 		
 		for (int i = 0; i < 70; i++) {
 			for (int j = 0; j < 70; j++) {
-				new Entity(models.get("man.obj"), new Position((i - 35) * 60, -50, (j - 35) * 60, 0, 0, 0));
+				new Entity(models.get("man.obj"), new Position3((i - 35) * 60, -50, (j - 35) * 60, 0, 0, 0));
 			}
 		}
 		

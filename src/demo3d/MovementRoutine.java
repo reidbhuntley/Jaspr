@@ -1,13 +1,16 @@
 package demo3d;
 
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import core.Entity;
 import core.EntitySystem.EntityFetcher;
 import core.EntitySystem.SingletonFetcher;
 import core.Routine;
 import jaspr3d.Camera;
-import jaspr3d.Position;
+import jaspr3d.Position2;
+import jaspr3d.Position3;
 import jaspr3d.RawModel;
 import jaspr3d.Texture;
 
@@ -16,8 +19,12 @@ public class MovementRoutine extends Routine {
 	private static SingletonFetcher cameras;
 	private static EntityFetcher positions;
 	
+	private static int lastX = 0, lastY = 0;
+	private static List<Position2> mouseList = new ArrayList<>();
+	private static final int MOUSE_LIST_MAX = 5;
+	
 	public MovementRoutine(){
-		super(Camera.class, Position.class, RawModel.class, Texture.class);
+		super(Camera.class, Position3.class, RawModel.class, Texture.class);
 	}
 	
 	@Override
@@ -27,36 +34,58 @@ public class MovementRoutine extends Routine {
 
 		Camera camera = (Camera) cameras.fetchComponent();
 		
-		float z = 0, yaw = 0;
-		if (Test3D.keys.down(KeyEvent.VK_LEFT))
-			yaw -= 1;
-		if (Test3D.keys.down(KeyEvent.VK_RIGHT))
-			yaw += 1;
-		if (Test3D.keys.down(KeyEvent.VK_UP))
-			z -= 5;
-		if (Test3D.keys.down(KeyEvent.VK_DOWN))
-			z += 5;
+		float fwd = 0, right = 0;
+		if (Test3D.keys.down(KeyEvent.VK_W))
+			fwd = 3;
+		if (Test3D.keys.down(KeyEvent.VK_S))
+			fwd = -3;
+		if (Test3D.keys.down(KeyEvent.VK_A))
+			right = -3;
+		if (Test3D.keys.down(KeyEvent.VK_D))
+			right = 3;
 		if (Test3D.keys.down(KeyEvent.VK_SPACE)){
-			new Entity(Test3D.models.get("man.obj"), Test3D.textures.get("pepe.png"), new Position(camera.x(),camera.y() - 25,camera.z()));
+			new Entity(Test3D.models.get("man.obj"), Test3D.textures.get("pepe.png"), new Position3(camera.x(),camera.y() - 25,camera.z()));
 		}
 		
-		if(camera != null){
-			camera.rotate(0, yaw, 0);
-			yaw = (float)Math.toRadians(camera.yaw());
-			camera.move((float)(-z*Math.sin(yaw)), 0, (float)(z*Math.cos(yaw)));
+		Position2 mouse = Test3D.mouse.position();
+		int x = (int)mouse.x(), y = (int)mouse.y();
+		int diffX = x - lastX, diffY = y - lastY;
+		lastX = x;
+		lastY = y;
+		
+		mouseList.add(new Position2(diffX, diffY));
+		if(mouseList.size() > MOUSE_LIST_MAX)
+			mouseList.remove(0);
+		double avgX = 0, avgY = 0;
+		for(Position2 pos : mouseList){
+			avgX += pos.x();
+			avgY += pos.y();
 		}
+		avgX /= mouseList.size();
+		avgY /= mouseList.size();
+		camera.rotate((float)avgY/15, (float)avgX/15, 0.0f);
+		
+		if(Math.hypot(x, y) > 10){
+			lastX = 0;
+			lastY = 0;
+			Test3D.mouse.setPosition(0, 0);
+		}
+		
+		camera.moveForward(fwd);
+		camera.moveRight(right);
+
 		
 		for(Entity e : positions.fetch()){
-			e.getAs(Position.class).rotate(1, 1, 1);
+			e.getAs(Position3.class).rotate(1, 1, 1);
 		}
 		
-		System.out.println(Test3D.game.actualFps());
+		//System.out.println(Test3D.game.actualFps());
 	}
 
 	@Override
 	public void onInit() {
 		cameras = Test3D.es.getSingletonFetcher(Camera.class);
-		positions = Test3D.es.getEntityFetcher(Position.class);
+		positions = Test3D.es.getEntityFetcher(Position3.class);
 	}
 
 	@Override

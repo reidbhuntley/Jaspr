@@ -4,7 +4,7 @@ import com.jogamp.opengl.math.Matrix4;
 
 import core.Component;
 
-public class Position3 extends Component {
+public class Position3 implements Component {
 	private Vector3 vec;
 	private float pitch, yaw, roll;
 	private Matrix4 transformationMatrix;

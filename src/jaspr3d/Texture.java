@@ -2,7 +2,7 @@ package jaspr3d;
 
 import core.Component;
 
-public class Texture extends Component {
+public class Texture implements Component {
 
 	private int textureID;
 	private float shineDamper;

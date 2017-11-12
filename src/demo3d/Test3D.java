@@ -13,6 +13,7 @@ import jaspr3d.Camera;
 import jaspr3d.Light;
 import jaspr3d.Position3;
 import jaspr3d.Renderer;
+import jaspr3d.Vector3;
 import res.ModelManager;
 import res.TextureManager;
 
@@ -43,9 +44,9 @@ public class Test3D {
 		game.assignMouseManagers(mouse);
 
 		new Entity(new Camera());
-		new Entity(new Light(0, 20, -500, 0.2f, 0.2f, 1));
-		new Entity(new Light(0, 20, 500, 1, 0.2f, 0.2f));
-		new Entity(new Light(350, 20, 0, 0.2f, 1, 0.2f));
+		new Entity(new Light(new Vector3(0, 20, -500), new Vector3(0.2f, 0.2f, 1)));
+		new Entity(new Light(new Vector3(0, 20, 500), new Vector3(1, 0.2f, 0.2f)));
+		new Entity(new Light(new Vector3(350, 20, 0), new Vector3(0.2f, 1, 0.2f)));
 		
 		for (int i = 0; i < 70; i++) {
 			for (int j = 0; j < 70; j++) {

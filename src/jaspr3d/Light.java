@@ -1,22 +1,34 @@
 package jaspr3d;
 
-public class Light extends Position3 {
-	
-	private float r,g,b;
+import core.Component;
 
-	public Light(float x, float y, float z, float r, float g, float b) {
-		super(x,y,z);
-		setColor(r,g,b);
+public class Light extends Vector3 implements Component {
+	
+	private Vector3 color, attenuation; 
+
+	public Light(Vector3 position, Vector3 color, Vector3 attenuation) {
+		super(position);
+		this.color = color;
+		this.attenuation = attenuation;
 	}
 	
-	public void setColor(float r, float g, float b){
-		this.r = r;
-		this.g = g;
-		this.b = b;
+	public Light(Vector3 position, Vector3 color){
+		this(position, color, new Vector3(1,1,1));
 	}
 	
-	public float[] getColor(){
-		float[] color = {r,g,b};
+	public Light(Vector3 position) {
+		this(position, new Vector3());
+	}
+	
+	public Light(){
+		this(new Vector3());
+	}
+	
+	public void setColor(Vector3 color){
+		this.color = color;
+	}
+	
+	public Vector3 getColor(){
 		return color;
 	}
 	

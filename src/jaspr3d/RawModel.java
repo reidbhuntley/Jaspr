@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import core.Component;
 
-public class RawModel extends Component {
+public class RawModel implements Component {
 	
 	private final int vaoID, vertexCount, indicesCount;
 	private final Vector3 center;

@@ -4,7 +4,7 @@ import java.awt.Point;
 
 import core.Component;
 
-public class Position2 extends Component {
+public class Position2 implements Component {
 	private float x, y;
 	private float rotation;
 

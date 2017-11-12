@@ -57,7 +57,7 @@ public class EntitySystem {
 	@SuppressWarnings("unchecked")
 	public <T extends Component> T readComponent(Entity e, Class<T> type) {
 		HashMap<Entity, ? extends Component> table = componentTables.get(type);
-		Component result = table.get(e).clone();
+		Component result = table.get(e).getClone();
 		assertClone(result, type);
 		return (T) result;
 	}
@@ -65,7 +65,7 @@ public class EntitySystem {
 	public <T extends Component> HashMap<Entity, Component> readComponentTable(Class<T> type) {
 		HashMap<Entity, Component> old = componentTables.get(type), out = new HashMap<>();
 		for (Entity e : old.keySet()) {
-			Component c = old.get(e).clone();
+			Component c = old.get(e).getClone();
 			assertClone(c, type);
 			out.put(e, (Component) c);
 		}

@@ -132,7 +132,7 @@ public class Renderer {
 				List<Light> closestLights = new ArrayList<>();
 				for(Entity e : lights.fetch()){
 					Light light = e.getAs(Light.class);
-					float distance = Vector3.add(pos.getVec(), Vector3.scale(light.getVec(), -1)).magnitude();
+					float distance = Vector3.add(pos.getVec(), Vector3.scale(light, -1)).magnitude();
 					for(int i = 0; i < StaticShader.MAX_LIGHTS; i++){
 						if(i >= closestDistances.size()){
 							closestDistances.add(i, distance);

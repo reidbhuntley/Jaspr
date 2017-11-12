@@ -8,6 +8,7 @@ import com.jogamp.opengl.math.Matrix4;
 import jaspr3d.Camera;
 import jaspr3d.Light;
 import jaspr3d.VAOLoader;
+import jaspr3d.Vector3;
 
 public class StaticShader extends ShadersProgram {
 	
@@ -59,16 +60,16 @@ public class StaticShader extends ShadersProgram {
 	public void loadLights(List<Light> lights){
 		for(int i = 0; i < MAX_LIGHTS; i++){
 			Light light;
-			float[] color;
+			Vector3 color;
 			if(i < lights.size()){
 				light = lights.get(i);
 				color = light.getColor();
 			} else {
-				light = new Light(0,0,0,0,0,0);
-				color = new float[3];
+				light = new Light();
+				color = new Vector3();
 			}
 			super.loadVector(getUniformLocation("lightPosition["+i+"]"),light.x(),light.y(),light.z());
-			super.loadVector(getUniformLocation("lightColor["+i+"]"),color[0],color[1],color[2]);
+			super.loadVector(getUniformLocation("lightColor["+i+"]"),color.x(),color.y(),color.z());
 		}
 	}
 

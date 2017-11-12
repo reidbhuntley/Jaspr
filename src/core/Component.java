@@ -1,7 +1,7 @@
 package core;
 
-public abstract class Component {
-	public Component clone() {
+public interface Component {
+	public default Component getClone(){
 		return null;
-	}
+	};
 }

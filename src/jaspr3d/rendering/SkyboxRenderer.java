@@ -5,7 +5,7 @@ import com.jogamp.opengl.math.Matrix4;
 
 import jaspr3d.Camera;
 import jaspr3d.Position3;
-import jaspr3d.RawPanel;
+import jaspr3d.RawModel;
 import jaspr3d.VAOLoader;
 import jaspr3d.shaders.SkyboxShader;
 import res.CubemapManager;
@@ -60,7 +60,7 @@ public class SkyboxRenderer {
 	
 	private static final String[] TEXTURE_FILES = {"right.png", "left.png", "top.png", "bottom.png", "back.png", "front.png"};
 	
-	private RawPanel cube;
+	private RawModel cube;
 	private int texture;
 	private SkyboxShader shader;
 	private VAOLoader loader;

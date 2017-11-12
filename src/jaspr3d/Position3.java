@@ -175,4 +175,9 @@ public class Position3 implements Component {
 		return mat;
 	}
 	
+	@Override
+	public Position3 getClone(){
+		return new Position3(this);
+	}
+	
 }

@@ -3,6 +3,14 @@ package jaspr3d;
 import com.jogamp.opengl.math.Matrix4;
 
 public class Camera extends Position3 {
+	
+	public Camera(){
+		super();
+	}
+	
+	public Camera(Position3 pos){
+		super(pos);
+	}
 
 	@Override
 	public Matrix4 createTransformationMatrix(float x, float y, float z, float pitch, float yaw, float roll) {
@@ -32,6 +40,11 @@ public class Camera extends Position3 {
 		mat.multMatrix(translationMat);
 		
 		return mat;
+	}
+	
+	@Override
+	public Camera getClone(){
+		return new Camera(this);
 	}
 	
 }

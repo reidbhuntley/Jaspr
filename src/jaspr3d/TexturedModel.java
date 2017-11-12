@@ -1,10 +1,26 @@
 package jaspr3d;
 
-public class TexturedModel extends TexturedPanel {
+import core.Component;
+
+public class TexturedModel implements Component {
+	private RawModel model;
+	private Texture texture;
+
 	public TexturedModel(RawModel model, Texture texture) {
-		super(model, texture);
+		this.model = model;
+		this.texture = texture;
 	}
+
 	public RawModel getModel() {
-		return (RawModel) this.getPanel();
+		return model;
+	}
+
+	public Texture getTexture() {
+		return texture;
+	}
+	
+	@Override
+	public TexturedModel getClone(){
+		return new TexturedModel(model.getClone(),texture.getClone());
 	}
 }

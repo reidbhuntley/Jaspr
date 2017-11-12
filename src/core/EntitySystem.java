@@ -252,6 +252,12 @@ public class EntitySystem {
 				return null;
 			return entity.getAs(c);
 		}
+		public Component readComponent(){
+			fetch();
+			if(entity == null)
+				return null;
+			return entity.readAs(c);
+		}
 	}
 
 }

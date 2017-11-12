@@ -40,4 +40,9 @@ public class Light extends Vector3 implements Component {
 		return attenuation;
 	}
 	
+	@Override
+	public Light getClone(){
+		return new Light(this,new Vector3(color),new Vector3(attenuation));
+	}
+	
 }

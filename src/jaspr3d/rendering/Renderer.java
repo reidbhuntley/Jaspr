@@ -25,13 +25,13 @@ public class Renderer {
 
 	private final float NEAR_PLANE, FAR_PLANE, FOV;
 	private final HashMap<TexturedModel,List<Position3>> worldModels;
-	
 	private Texture defaultTexture;
 	private ViewFrustum frustum;
+	private Matrix4 projectionMatrix;
 	private int WIDTH, HEIGHT;
+	
 	private EntityFetcher rawModels, texturedModels, lights;
 	private SingletonFetcher cameras;
-	private Matrix4 projectionMatrix;
 
 	private StaticShader shader;
 	private SkyboxRenderer skybox;
@@ -128,15 +128,15 @@ public class Renderer {
 	
 	private void fetchTexturedModels(){
 		for (Entity e : rawModels.fetch()) {
-			RawModel model = e.getAs(RawModel.class);
+			RawModel model = e.readAs(RawModel.class);
 			Texture texture;
 			if(e.hasComponent(Texture.class)){
-				texture = e.getAs(Texture.class);
+				texture = e.readAs(Texture.class);
 			} else {
 				texture = defaultTexture;
 			}
 			
-			Position3 pos = e.getAs(Position3.class);
+			Position3 pos = e.readAs(Position3.class);
 			if(pos == null)
 				pos = new Position3();
 			
@@ -147,9 +147,9 @@ public class Renderer {
 		}
 		
 		for (Entity e : texturedModels.fetch()) {
-			TexturedModel tModel = e.getAs(TexturedModel.class);
+			TexturedModel tModel = e.readAs(TexturedModel.class);
 			
-			Position3 pos = e.getAs(Position3.class);
+			Position3 pos = e.readAs(Position3.class);
 			if(pos == null)
 				pos = new Position3();
 			
@@ -160,10 +160,9 @@ public class Renderer {
 	}
 	
 	private Camera prepareCamera(){
-		Camera camera = (Camera) cameras.fetchComponent();
+		Camera camera = (Camera) cameras.readComponent();
 		if(camera == null)
 			camera = new Camera();
-		camera.updateTransformations();
 		frustum.genPlanes(camera);
 		return camera;
 	}
@@ -172,7 +171,7 @@ public class Renderer {
 		List<Float> closestDistances = new ArrayList<>();
 		List<Light> closestLights = new ArrayList<>();
 		for(Entity e : lights.fetch()){
-			Light light = e.getAs(Light.class);
+			Light light = e.readAs(Light.class);
 			float distance = Vector3.add(pos.getVec(), Vector3.scale(light, -1)).magnitude();
 			for(int i = 0; i < amt; i++){
 				if(i >= closestDistances.size()){

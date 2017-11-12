@@ -33,13 +33,13 @@ public class VAOLoader {
 		return new RawModel(currentVbos, vaoID, vertices.length / 3, indices.length, center, radius);
 	}
 	
-	public RawPanel loadToVAO(GL3 gl, float[] positions, int dimensions){
+	public RawModel loadToVAO(GL3 gl, float[] positions, int dimensions){
 		this.gl = gl;
 		currentVbos = new HashMap<>();
 		int vaoID = createVAO();
 		storeAttribute(ATTR_VERTICES, positions, dimensions);
 		unbindVAO();
-		return new RawPanel(currentVbos, vaoID, positions.length/2);
+		return new RawModel(currentVbos, vaoID, positions.length/2, 0,new Vector3(),0);
 	}
 
 	public void cleanUp() {

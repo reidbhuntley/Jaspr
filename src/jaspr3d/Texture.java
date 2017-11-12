@@ -32,4 +32,9 @@ public class Texture implements Component {
 		return textureID;
 	}
 	
+	@Override
+	public Texture getClone(){
+		return new Texture(textureID,shineDamper,reflectivity);
+	}
+	
 }

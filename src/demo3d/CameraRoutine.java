@@ -68,7 +68,7 @@ public class CameraRoutine extends Routine {
 		
 		camera.moveForward(fwd);
 		camera.moveRight(right);
-		
+		camera.updateTransformations();
 	}
 
 	@Override

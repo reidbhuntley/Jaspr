@@ -25,7 +25,7 @@ import jaspr3d.rendering.Renderer;
 import res.ModelManager;
 import res.TextureManager;
 
-public final class GameWindow implements GLEventListener {
+public final class GameWindow implements GLEventListener, Runnable {
 
 	private Renderer renderer;
 	private ModelManager models;
@@ -117,7 +117,8 @@ public final class GameWindow implements GLEventListener {
 
 	}
 
-	protected void display() {
+	@Override
+	public void run() {
 		window.setVisible(true);
 		canvas.display();
 	}

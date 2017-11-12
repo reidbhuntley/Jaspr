@@ -26,7 +26,7 @@ public class ModelManager extends AssetType<RawModel> {
 	}
 
 	public RawModel get(String filename) {
-		return assets().get(filename);
+		return getAsset(filename);
 	}
 
 	public void preload(GL3 gl) {
@@ -120,7 +120,7 @@ public class ModelManager extends AssetType<RawModel> {
 		float invNumVertices = 3/verticesArray.length;
 		Vector3 center = new Vector3(xTotal,yTotal,zTotal);
 		center.scale(invNumVertices);
-		RawModel model = loader.loadToVAO(center, magMax, gl, indicesArray, verticesArray, normalsArray, textureArray);
+		RawModel model = loader.loadToVAO(gl, indicesArray, verticesArray, normalsArray, textureArray, center, magMax);
 		return model;
 	}
 

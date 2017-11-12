@@ -71,15 +71,15 @@ public class TextureManager extends AssetType<Texture> {
 	}
 
 	public Texture get(String filename, float shineDamper, float reflectivity) {
-		Texture texture = assets().get(filename);
+		Texture texture = getAsset(filename);
 		if(texture == null){
 			throw new IllegalArgumentException("Missing texture file '"+filename+"'");
 		}
-		return new Texture(assets().get(filename).getID(), shineDamper, reflectivity);
+		return new Texture(getAsset(filename).getID(), shineDamper, reflectivity);
 	}
 	
 	public Texture get(String filename) {
-		return assets().get(filename);
+		return getAsset(filename);
 	}
 
 	public Texture defaultTexture() {

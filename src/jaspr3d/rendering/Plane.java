@@ -1,4 +1,6 @@
-package jaspr3d;
+package jaspr3d.rendering;
+
+import jaspr3d.Vector3;
 
 public final class Plane {
 

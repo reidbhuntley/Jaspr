@@ -21,9 +21,9 @@ public class VAOLoader {
 		vbos = new ArrayList<>();
 	}
 
-	public RawModel loadToVAO(Vector3 center, float radius, GL3 gl, int[] indices, float[] vertices, float[] normals, float[] texCoords) {
-		currentVbos = new HashMap<>();
+	public RawModel loadToVAO(GL3 gl, int[] indices, float[] vertices, float[] normals, float[] texCoords, Vector3 center, float radius) {
 		this.gl = gl;
+		currentVbos = new HashMap<>();
 		int vaoID = createVAO();
 		bindIndices(indices);
 		storeAttribute(ATTR_VERTICES, vertices, 3);
@@ -31,6 +31,15 @@ public class VAOLoader {
 		storeAttribute(ATTR_NORMALS, normals, 3);
 		unbindVAO();
 		return new RawModel(currentVbos, vaoID, vertices.length / 3, indices.length, center, radius);
+	}
+	
+	public RawPanel loadToVAO(GL3 gl, float[] positions, int dimensions){
+		this.gl = gl;
+		currentVbos = new HashMap<>();
+		int vaoID = createVAO();
+		storeAttribute(ATTR_VERTICES, positions, dimensions);
+		unbindVAO();
+		return new RawPanel(currentVbos, vaoID, positions.length/2);
 	}
 
 	public void cleanUp() {

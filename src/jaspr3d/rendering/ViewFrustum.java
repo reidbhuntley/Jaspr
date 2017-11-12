@@ -1,6 +1,9 @@
-package jaspr3d;
+package jaspr3d.rendering;
 
 import com.jogamp.opengl.math.Matrix4;
+
+import jaspr3d.Camera;
+import jaspr3d.Vector3;
 
 public class ViewFrustum {
 	

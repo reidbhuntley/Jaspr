@@ -21,7 +21,7 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 
-import jaspr3d.Renderer;
+import jaspr3d.rendering.Renderer;
 import res.ModelManager;
 import res.TextureManager;
 

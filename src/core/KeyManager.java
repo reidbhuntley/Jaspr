@@ -24,7 +24,7 @@ public class KeyManager {
 		keysListening.add(keyEvent);
 	}
 
-	protected void fetchKeys() {
+	protected synchronized void fetchKeys() {
 		keysPressed = new HashSet<>(keysPressedBuffer);
 		keysReleased = new HashSet<>(keysReleasedBuffer);
 		keysDown = new HashSet<>(keysDownBuffer);
@@ -32,12 +32,12 @@ public class KeyManager {
 		keysReleasedBuffer = new HashSet<>();
 	}
 
-	protected void addKeyPressed(int keyEvent) {
+	protected synchronized void addKeyPressed(int keyEvent) {
 		keysPressedBuffer.add(keyEvent);
 		keysDownBuffer.add(keyEvent);
 	}
 
-	protected void addKeyReleased(int keyEvent) {
+	protected synchronized void addKeyReleased(int keyEvent) {
 		keysReleasedBuffer.add(keyEvent);
 		keysDownBuffer.remove(keyEvent);
 	}

@@ -63,8 +63,13 @@ public abstract class AssetType<T> {
 		}
 	}
 
-	protected HashMap<String, T> assets() {
-		return assets;
+	protected T getAsset(String file){
+		T asset = assets.get(file);
+		if(asset == null){
+			System.err.println("Missing file " + file);
+			System.exit(-1);
+		}
+		return asset;
 	}
 
 	public static String getExtension(String filename) {

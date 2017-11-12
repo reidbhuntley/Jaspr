@@ -6,12 +6,12 @@ in vec3 normal;
 
 out vec2 pass_textureCoords;
 out vec3 surfaceNormal;
-out vec3 toLightVector;
+out vec3 toLightVector[4];
 out vec3 toCameraVector;
 
 uniform mat4 modelMatrix;
 uniform mat4 mvpMatrix;
-uniform vec3 lightPosition;
+uniform vec3 lightPosition[4];
 uniform vec3 cameraPosition;
 
 void main(void){
@@ -23,13 +23,13 @@ void main(void){
 	
 	if(normal == vec3(0.0,0.0,0.0)){
 		surfaceNormal = vec3(0.0,0.0,0.0);
-		toLightVector = vec3(0.0,0.0,0.0);
-		toCameraVector = vec3(0.0,0.0,0.0);
 		return;
 	}
 	
 	surfaceNormal = (modelMatrix * vec4(normal,0.0)).xyz;
-	toLightVector = lightPosition.xyz - worldPosition.xyz;
+	for(int i = 0; i < 4; i++){
+		toLightVector[i] = lightPosition[i].xyz - worldPosition.xyz;
+	}
 	toCameraVector = cameraPosition.xyz - worldPosition.xyz;
 
 }

@@ -21,8 +21,8 @@ public class Renderer {
 	
 	private Texture defaultTexture;
 	private int WIDTH, HEIGHT;
-	private EntityFetcher rawModels, texturedModels;
-	private SingletonFetcher lights, cameras;
+	private EntityFetcher rawModels, texturedModels, lights;
+	private SingletonFetcher cameras;
 	private Matrix4 projectionMatrix;
 	private ViewFrustum frustum;
 
@@ -42,8 +42,8 @@ public class Renderer {
 		
 		rawModels = es.getEntityFetcher(RawModel.class);
 		texturedModels = es.getEntityFetcher(TexturedModel.class);
+		lights = es.getEntityFetcher(Light.class);
 		
-		lights = es.getSingletonFetcher(Light.class);
 		cameras = es.getSingletonFetcher(Camera.class);
 		
 		frustum = new ViewFrustum(WIDTH, HEIGHT, FOV, NEAR_PLANE, FAR_PLANE);
@@ -105,17 +105,8 @@ public class Renderer {
 		if(camera == null)
 			camera = new Camera();
 		camera.updateTransformations();
-		Camera testCam = new Camera();
-		testCam.set(0,0,0,90,0,0);
-		testCam.updateTransformations();
 		frustum.genPlanes(camera);
 		shader.loadCameraPosition(camera);
-		
-		
-		Light light = (Light) lights.fetchComponent();
-		if(light == null)
-			light = new Light(0,0,0,1,1,1);
-		shader.loadLight(light);
 		
 		for(TexturedModel tModel : worldModels.keySet()){
 			Texture texture = tModel.getTexture();
@@ -125,7 +116,6 @@ public class Renderer {
 			gl.glBindVertexArray(model.getVaoID());
 			gl.glBindTexture(GL3.GL_TEXTURE_2D, texture.getID());
 			shader.loadShineVariables(texture.getShineDamper(), texture.getReflectivity());
-			
 			
 			for(Position3 pos : positions){
 				pos.updateTransformations();
@@ -138,6 +128,29 @@ public class Renderer {
 				if(!frustum.sphereIntersects(Vector3.add(pos.getVec(), model.getCenter()), model.getRadius()))
 					continue;
 				
+				List<Float> closestDistances = new ArrayList<>();
+				List<Light> closestLights = new ArrayList<>();
+				for(Entity e : lights.fetch()){
+					Light light = e.getAs(Light.class);
+					float distance = Vector3.add(pos.getVec(), Vector3.scale(light.getVec(), -1)).magnitude();
+					for(int i = 0; i < StaticShader.MAX_LIGHTS; i++){
+						if(i >= closestDistances.size()){
+							closestDistances.add(i, distance);
+							closestLights.add(i, light);
+							break;
+						}
+						if(distance < closestDistances.get(i)){
+							closestDistances.add(i, distance);
+							closestLights.add(i, light);
+							if(closestDistances.size() >= StaticShader.MAX_LIGHTS){
+								closestDistances.remove(StaticShader.MAX_LIGHTS);
+								closestLights.remove(StaticShader.MAX_LIGHTS);
+							}
+							break;
+						}
+					}
+				}
+				shader.loadLights(closestLights);
 				shader.loadMvpMatrix(transformations);
 				shader.loadWorldMatrix(pos.getTransformations());
 				gl.glDrawElements(GL3.GL_TRIANGLES, model.getIndicesCount(), GL3.GL_UNSIGNED_INT, 0);

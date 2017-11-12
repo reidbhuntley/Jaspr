@@ -1,5 +1,7 @@
 package jaspr3d.shaders;
 
+import java.util.List;
+
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.math.Matrix4;
 
@@ -11,6 +13,7 @@ public class StaticShader extends ShadersProgram {
 	
 	private final static String VERTEX_FILE = "jaspr3d/shaders/vertexShader.txt";
 	private final static String FRAGMENT_FILE = "jaspr3d/shaders/fragmentShader.txt";
+	public final static int MAX_LIGHTS = 4;
 
 	public StaticShader(GL3 gl) {
 		super(gl, VERTEX_FILE, FRAGMENT_FILE);
@@ -28,10 +31,12 @@ public class StaticShader extends ShadersProgram {
 		super.initUniformLocation("modelMatrix");
 		super.initUniformLocation("mvpMatrix");
 		super.initUniformLocation("cameraPosition");
-		super.initUniformLocation("lightPosition");
-		super.initUniformLocation("lightColor");
 		super.initUniformLocation("shineDamper");
 		super.initUniformLocation("reflectivity");
+		for(int i = 0; i < MAX_LIGHTS; i++){
+			super.initUniformLocation("lightPosition["+i+"]");
+			super.initUniformLocation("lightColor["+i+"]");
+		}
 	}
 	
 	public void loadShineVariables(float shineDamper, float reflectivity){
@@ -51,10 +56,20 @@ public class StaticShader extends ShadersProgram {
 		super.loadMatrix(getUniformLocation("mvpMatrix"), matrix);
 	}
 	
-	public void loadLight(Light light){
-		float[] color = light.getColor();
-		super.loadVector(getUniformLocation("lightPosition"),light.x(),light.y(),light.z());
-		super.loadVector(getUniformLocation("lightColor"),color[0],color[1],color[2]);
+	public void loadLights(List<Light> lights){
+		for(int i = 0; i < MAX_LIGHTS; i++){
+			Light light;
+			float[] color;
+			if(i < lights.size()){
+				light = lights.get(i);
+				color = light.getColor();
+			} else {
+				light = new Light(0,0,0,0,0,0);
+				color = new float[3];
+			}
+			super.loadVector(getUniformLocation("lightPosition["+i+"]"),light.x(),light.y(),light.z());
+			super.loadVector(getUniformLocation("lightColor["+i+"]"),color[0],color[1],color[2]);
+		}
 	}
 
 }

@@ -69,7 +69,6 @@ public class CameraRoutine extends Routine {
 		camera.moveForward(fwd);
 		camera.moveRight(right);
 		
-		//System.out.println(Test3D.game.actualFps());
 	}
 
 	@Override

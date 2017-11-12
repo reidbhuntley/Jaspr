@@ -44,9 +44,10 @@ public class Test3D {
 		game.assignMouseManagers(mouse);
 
 		new Entity(new Camera());
-		new Entity(new Light(new Vector3(0, 20, -500), new Vector3(0.2f, 0.2f, 1)));
-		new Entity(new Light(new Vector3(0, 20, 500), new Vector3(1, 0.2f, 0.2f)));
-		new Entity(new Light(new Vector3(350, 20, 0), new Vector3(0.2f, 1, 0.2f)));
+		new Entity(new Light(new Vector3(0,50,0)));
+		new Entity(new Light(new Vector3(-300, 10, -400), new Vector3(0.2f, 0.2f, 1), new Vector3(0,0.005f,0)));
+		new Entity(new Light(new Vector3(-300, 10, 400), new Vector3(1, 0.2f, 0.2f), new Vector3(0,0.005f,0)));
+		new Entity(new Light(new Vector3(350, 10, 0), new Vector3(0.2f, 1, 0.2f), new Vector3(0,0.005f,0)));
 		
 		for (int i = 0; i < 70; i++) {
 			for (int j = 0; j < 70; j++) {

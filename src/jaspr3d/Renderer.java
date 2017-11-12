@@ -142,7 +142,7 @@ public class Renderer {
 						if(distance < closestDistances.get(i)){
 							closestDistances.add(i, distance);
 							closestLights.add(i, light);
-							if(closestDistances.size() >= StaticShader.MAX_LIGHTS){
+							if(closestDistances.size() > StaticShader.MAX_LIGHTS){
 								closestDistances.remove(StaticShader.MAX_LIGHTS);
 								closestLights.remove(StaticShader.MAX_LIGHTS);
 							}

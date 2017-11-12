@@ -13,11 +13,11 @@ public class Light extends Vector3 implements Component {
 	}
 	
 	public Light(Vector3 position, Vector3 color){
-		this(position, color, new Vector3(1,1,1));
+		this(position, color, new Vector3(1,0,0));
 	}
 	
 	public Light(Vector3 position) {
-		this(position, new Vector3());
+		this(position, new Vector3(1,1,1));
 	}
 	
 	public Light(){
@@ -30,6 +30,14 @@ public class Light extends Vector3 implements Component {
 	
 	public Vector3 getColor(){
 		return color;
+	}
+
+	public void setAttenuation(Vector3 attenuation) {
+		this.attenuation = attenuation;
+	}
+	
+	public Vector3 getAttenuation() {
+		return attenuation;
 	}
 	
 }

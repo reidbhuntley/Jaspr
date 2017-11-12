@@ -37,6 +37,7 @@ public class StaticShader extends ShadersProgram {
 		for(int i = 0; i < MAX_LIGHTS; i++){
 			super.initUniformLocation("lightPosition["+i+"]");
 			super.initUniformLocation("lightColor["+i+"]");
+			super.initUniformLocation("attenuation["+i+"]");
 		}
 	}
 	
@@ -60,16 +61,19 @@ public class StaticShader extends ShadersProgram {
 	public void loadLights(List<Light> lights){
 		for(int i = 0; i < MAX_LIGHTS; i++){
 			Light light;
-			Vector3 color;
+			Vector3 color, attenuation;
 			if(i < lights.size()){
 				light = lights.get(i);
 				color = light.getColor();
+				attenuation = light.getAttenuation();
 			} else {
 				light = new Light();
 				color = new Vector3();
+				attenuation = new Vector3(1,0,0);
 			}
 			super.loadVector(getUniformLocation("lightPosition["+i+"]"),light.x(),light.y(),light.z());
 			super.loadVector(getUniformLocation("lightColor["+i+"]"),color.x(),color.y(),color.z());
+			super.loadVector(getUniformLocation("attenuation["+i+"]"),attenuation.x(),attenuation.y(),attenuation.z());
 		}
 	}
 

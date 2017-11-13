@@ -29,7 +29,7 @@ public class GameManager {
 		this.window = window;
 		window.assignEntitySystem(es);
 		window.run();
-		executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
+		executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 2);
 		newPhase = false;
 		quit = true;
 		t = 0;
@@ -60,10 +60,8 @@ public class GameManager {
 				Thread.sleep((dt - frameTime) / 1000000);
 			currentTime = System.nanoTime();
 			
-			Future<?> renderFuture = null;
-			if(window != null){
-	        	renderFuture = executor.submit(window);
-	        }
+			Thread renderThread = new Thread(window);
+			renderThread.start();
 			
 			accumulator += frameTime;
 			while (accumulator >= dt) {
@@ -72,7 +70,7 @@ public class GameManager {
 				t += dt;
 			}
 			
-			while(renderFuture != null && renderFuture.get() != null){
+			while(renderThread.isAlive()){
 				Thread.sleep(1);
 			}
 

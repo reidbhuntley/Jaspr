@@ -209,7 +209,7 @@ public class EntitySystem {
 		}
 		
 		public List<Entity> fetch(){
-			return entities;
+			return new ArrayList<>(entities);
 		}
 
 		private boolean isNew() {

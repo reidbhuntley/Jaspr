@@ -15,16 +15,16 @@ import core.EntitySystem.SingletonFetcher;
 import jaspr3d.Camera;
 import jaspr3d.Light;
 import jaspr3d.Position3;
-import jaspr3d.RawModel;
+import jaspr3d.Mesh;
 import jaspr3d.Texture;
-import jaspr3d.TexturedModel;
+import jaspr3d.Model;
 import jaspr3d.Vector3;
 import jaspr3d.shaders.StaticShader;
 
 public class Renderer {
 
 	private final float NEAR_PLANE, FAR_PLANE, FOV;
-	private final HashMap<TexturedModel,List<Position3>> worldModels;
+	private final HashMap<Model,List<Position3>> worldModels;
 	private Texture defaultTexture;
 	private ViewFrustum frustum;
 	private Matrix4 projectionMatrix;
@@ -36,20 +36,22 @@ public class Renderer {
 	private StaticShader shader;
 	private SkyboxRenderer skybox;
 	
-	public Renderer(float fov, float nearPlane, float farPlane){
+	private EntitySystem es;
+	
+	public Renderer(EntitySystem es, float fov, float nearPlane, float farPlane){
+		this.es = es;
 		NEAR_PLANE = nearPlane;
 		FAR_PLANE = farPlane;
 		FOV = fov;
 		worldModels = new HashMap<>();
 	}
 	
-	public void init(GL3 gl, EntitySystem es, int width, int height, Texture texture){		
+	public void init(GL3 gl, int width, int height, Texture texture){		
 		WIDTH = width;
 		HEIGHT = height;
 		defaultTexture = texture;
-		
-		rawModels = es.getEntityFetcher(RawModel.class);
-		texturedModels = es.getEntityFetcher(TexturedModel.class);
+		rawModels = es.getEntityFetcher(Mesh.class);
+		texturedModels = es.getEntityFetcher(Model.class);
 		lights = es.getEntityFetcher(Light.class);
 		
 		cameras = es.getSingletonFetcher(Camera.class);
@@ -65,11 +67,11 @@ public class Renderer {
 	}
 	
 	public void dispose(GL3 gl){
-		shader.cleanUp();
-		skybox.cleanUp();
+		shader.cleanUp(gl);
+		skybox.cleanUp(gl);
 	}
 
-	public void render(GL3 gl, GLU glu, EntitySystem es) {
+	public void render(GL3 gl, GLU glu) {
 		
 		Camera camera = prepareCamera();
 		
@@ -81,24 +83,24 @@ public class Renderer {
 		
 		gl.glDisable(GL3.GL_DEPTH_TEST);
 		
-		skybox.render(camera);
+		skybox.render(gl, camera);
 		
 		gl.glEnable(GL3.GL_DEPTH_TEST);
 		gl.glDepthRange(NEAR_PLANE, FAR_PLANE);
 		
 		
 		fetchTexturedModels();
-		shader.start();		
-		shader.loadCameraPosition(camera);
+		shader.start(gl);		
+		shader.loadCameraPosition(gl, camera);
 		
-		for(TexturedModel tModel : worldModels.keySet()){
+		for(Model tModel : worldModels.keySet()){
 			Texture texture = tModel.getTexture();
-			RawModel model = tModel.getModel();
+			Mesh model = tModel.getModel();
 			List<Position3> positions = worldModels.get(tModel);
 			
 			gl.glBindVertexArray(model.getVaoID());
 			gl.glBindTexture(GL3.GL_TEXTURE_2D, texture.getID());
-			shader.loadShineVariables(texture.getShineDamper(), texture.getReflectivity());
+			shader.loadShineVariables(gl, texture.getShineDamper(), texture.getReflectivity());
 			
 			for(Position3 pos : positions){
 				if(!frustum.sphereIntersects(Vector3.add(pos.getVec(), model.getCenter()), model.getRadius()))
@@ -111,15 +113,15 @@ public class Renderer {
 				transformations.multMatrix(camera.getTransformations());
 				transformations.multMatrix(pos.getTransformations());
 				
-				shader.loadMvpMatrix(transformations);
-				shader.loadWorldMatrix(pos.getTransformations());
-				shader.loadLights(getClosestLights(pos, StaticShader.MAX_LIGHTS));
+				shader.loadMvpMatrix(gl, transformations);
+				shader.loadWorldMatrix(gl, pos.getTransformations());
+				shader.loadLights(gl, getClosestLights(pos, StaticShader.MAX_LIGHTS));
 				gl.glDrawElements(GL3.GL_TRIANGLES, model.getIndicesCount(), GL3.GL_UNSIGNED_INT, 0);
 			}
 			gl.glBindVertexArray(0);
 		}
 		
-		shader.stop();
+		shader.stop(gl);
 		worldModels.clear();
 		
 		gl.glFlush();
@@ -128,7 +130,7 @@ public class Renderer {
 	
 	private void fetchTexturedModels(){
 		for (Entity e : rawModels.fetch()) {
-			RawModel model = e.readAs(RawModel.class);
+			Mesh model = e.readAs(Mesh.class);
 			Texture texture;
 			if(e.hasComponent(Texture.class)){
 				texture = e.readAs(Texture.class);
@@ -140,14 +142,14 @@ public class Renderer {
 			if(pos == null)
 				pos = new Position3();
 			
-			TexturedModel tModel = new TexturedModel(model,texture);
+			Model tModel = new Model(model,texture);
 			if(!worldModels.containsKey(tModel))
 				worldModels.put(tModel, new ArrayList<>());
 			worldModels.get(tModel).add(pos);
 		}
 		
 		for (Entity e : texturedModels.fetch()) {
-			TexturedModel tModel = e.readAs(TexturedModel.class);
+			Model tModel = e.readAs(Model.class);
 			
 			Position3 pos = e.readAs(Position3.class);
 			if(pos == null)

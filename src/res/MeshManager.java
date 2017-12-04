@@ -7,40 +7,34 @@ import java.util.List;
 
 import com.jogamp.opengl.GL3;
 
+import core.GLEvent;
+import core.GameWindow;
 import de.javagl.obj.FloatTuple;
 import de.javagl.obj.Obj;
 import de.javagl.obj.ObjFace;
 import de.javagl.obj.ObjReader;
-import jaspr3d.RawModel;
+import jaspr3d.Mesh;
+import jaspr3d.MeshData;
 import jaspr3d.VAOLoader;
 import jaspr3d.Vector3;
 
-public class ModelManager extends AssetType<RawModel> {
+public class MeshManager extends AssetType<Mesh> {
 
 	private VAOLoader loader;
-	private GL3 gl;
+	private GameWindow window;
 
-	public ModelManager() {
-		super("models", "obj");
-		loader = new VAOLoader();
+	public MeshManager(GameWindow window) {
+		super("meshes", "obj");
+		this.loader = new VAOLoader();
+		this.window = window;
 	}
 
-	public RawModel get(String filename) {
-		return getAsset(filename);
+	public Mesh get(String filename) {
+		return getRawAsset(filename);
 	}
-
-	public void preload(GL3 gl) {
-		this.gl = gl;
-		loadFromDir(folderName);
-	}
-
+	
 	@Override
-	public void preload() {
-
-	}
-
-	@Override
-	public RawModel load(InputStream in, String name) throws IOException {
+	public Mesh loadAssetFromFile(InputStream in, String name) throws IOException {
 		Obj obj = ObjReader.read(in);
 
 		List<Integer> indices = new ArrayList<>();
@@ -120,12 +114,19 @@ public class ModelManager extends AssetType<RawModel> {
 		float invNumVertices = 3/verticesArray.length;
 		Vector3 center = new Vector3(xTotal,yTotal,zTotal);
 		center.scale(invNumVertices);
-		RawModel model = loader.loadToVAO(gl, indicesArray, verticesArray, normalsArray, textureArray, center, magMax);
+		
+		MeshData data = new MeshData(3, indicesArray, verticesArray, normalsArray, textureArray);
+		Mesh model = new Mesh(data, center, magMax);
+		window.addGLEvent(new GLEvent(){
+			public void run(GL3 gl){
+				loader.loadToVAO(gl, model);
+			}
+		});
 		return model;
 	}
 
-	public void cleanUp() {
-		loader.cleanUp();
+	public void cleanUp(GL3 gl) {
+		loader.cleanUp(gl);
 	}
 
 }

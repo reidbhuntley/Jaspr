@@ -1,13 +1,10 @@
 package demo3d;
 
-import core.Entity;
-import core.EntitySystem.EntityFetcher;
+import core.Component;
 import core.Routine;
 import jaspr3d.Position3;
 
 public class RotationRoutine extends Routine {
-
-	private static EntityFetcher positions;
 	
 	public RotationRoutine(){
 		super(Position3.class);
@@ -15,14 +12,15 @@ public class RotationRoutine extends Routine {
 	
 	@Override
 	public void routine() {
-		for(Entity e : positions.fetch()){
-			e.getAs(Position3.class).rotate(1, 1, 1);
+		for(Component c : Test3D.es.getComponentTable(Position3.class).values()){
+			((Position3) c).rotate(1, 1, 1);;
 		}
 	}
 
 	@Override
 	public void onInit() {
-		positions = Test3D.es.getEntityFetcher(Position3.class);
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override

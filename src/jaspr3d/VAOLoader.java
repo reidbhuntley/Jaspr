@@ -10,7 +10,6 @@ import com.jogamp.opengl.GL3;
 
 public class VAOLoader {
 
-	private GL3 gl;
 	private HashMap<Integer,Integer> currentVbos;
 	private List<Integer> vaos, vbos;
 	private final static int SIZE_FLOAT = 4, SIZE_INT = 4;
@@ -21,28 +20,29 @@ public class VAOLoader {
 		vbos = new ArrayList<>();
 	}
 
-	public RawModel loadToVAO(GL3 gl, int[] indices, float[] vertices, float[] normals, float[] texCoords, Vector3 center, float radius) {
-		this.gl = gl;
+	public void loadToVAO(GL3 gl, Mesh mesh) {
+		MeshData data = mesh.getData();
+		int dimensions = data.getDimensions();
+		int[] indices = data.getIndices();
+		float[] vertices = data.getVertices();
+		float[] normals = data.getNormals();
+		float[] texCoords = data.getTexCoords();
+		
 		currentVbos = new HashMap<>();
-		int vaoID = createVAO();
-		bindIndices(indices);
-		storeAttribute(ATTR_VERTICES, vertices, 3);
-		storeAttribute(ATTR_TEXCOORDS, texCoords, 2);
-		storeAttribute(ATTR_NORMALS, normals, 3);
-		unbindVAO();
-		return new RawModel(currentVbos, vaoID, vertices.length / 3, indices.length, center, radius);
-	}
-	
-	public RawModel loadToVAO(GL3 gl, float[] positions, int dimensions){
-		this.gl = gl;
-		currentVbos = new HashMap<>();
-		int vaoID = createVAO();
-		storeAttribute(ATTR_VERTICES, positions, dimensions);
-		unbindVAO();
-		return new RawModel(currentVbos, vaoID, positions.length/2, 0,new Vector3(),0);
+		int vaoID = createVAO(gl);
+		
+		if(indices.length > 0)
+			bindIndices(gl, indices);
+		storeAttribute(gl, ATTR_VERTICES, vertices, dimensions);
+		if(texCoords.length > 0)
+			storeAttribute(gl, ATTR_TEXCOORDS, texCoords, 2);
+		if(normals.length > 0)
+			storeAttribute(gl, ATTR_NORMALS, normals, dimensions);
+		unbindVAO(gl);
+		mesh.load(currentVbos, vaoID);
 	}
 
-	public void cleanUp() {
+	public void cleanUp(GL3 gl) {
 		IntBuffer arrays = IntBuffer.allocate(vaos.size());
 		IntBuffer buffers = IntBuffer.allocate(vbos.size());
 
@@ -57,7 +57,7 @@ public class VAOLoader {
 		gl.glDeleteBuffers(vbos.size(), buffers);
 	}
 
-	private int createVAO() {
+	private int createVAO(GL3 gl) {
 		IntBuffer array = IntBuffer.allocate(1);
 		gl.glGenVertexArrays(1, array);
 		int vaoID = array.get(0);
@@ -66,11 +66,11 @@ public class VAOLoader {
 		return vaoID;
 	}
 
-	private void unbindVAO() {
+	private void unbindVAO(GL3 gl) {
 		gl.glBindVertexArray(0);
 	}
 
-	private void storeAttribute(int attributeIndex, float[] data, int componentsPerVertex) {
+	private void storeAttribute(GL3 gl, int attributeIndex, float[] data, int componentsPerVertex) {
 		IntBuffer buffers = IntBuffer.allocate(1);
 		gl.glGenBuffers(1, buffers);
 		int vboID = buffers.get(0);
@@ -83,7 +83,7 @@ public class VAOLoader {
 		// gl.glBindBuffer(GL3.GL_ARRAY_BUFFER, 0);
 	}
 
-	private void bindIndices(int[] indices) {
+	private void bindIndices(GL3 gl, int[] indices) {
 		IntBuffer buffers = IntBuffer.allocate(1);
 		gl.glGenBuffers(1, buffers);
 		int vboID = buffers.get(0);

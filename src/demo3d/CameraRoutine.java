@@ -9,7 +9,7 @@ import core.Routine;
 import jaspr3d.Camera;
 import jaspr3d.Position2;
 import jaspr3d.Position3;
-import jaspr3d.RawModel;
+import jaspr3d.Mesh;
 import jaspr3d.Texture;
 
 public class CameraRoutine extends Routine {
@@ -21,7 +21,7 @@ public class CameraRoutine extends Routine {
 	private static final int MOUSE_LIST_MAX = 5;
 	
 	public CameraRoutine(){
-		super(Camera.class, Position3.class, RawModel.class, Texture.class);
+		super(Camera.class, Position3.class, Mesh.class, Texture.class);
 	}
 	
 	@Override

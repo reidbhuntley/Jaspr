@@ -5,6 +5,10 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -22,26 +26,29 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 
 import jaspr3d.rendering.Renderer;
-import res.ModelManager;
+import res.MeshManager;
 import res.TextureManager;
 
-public final class GameWindow implements GLEventListener, Runnable {
+public final class GameWindow implements GLEventListener {
 
 	private Renderer renderer;
-	private ModelManager models;
+	private MeshManager meshes;
 	private TextureManager textures;
-	private EntitySystem es;
 	private JFrame window;
 	private GLCanvas canvas;
 	private GLU glu;
+	private List<GLEvent> eventQueue;
+	private Iterator<GLEvent> eventIter;
+	// private boolean initialized;
 	public final int WIDTH, HEIGHT;
 
-	public GameWindow(int width, int height, Renderer renderer, ModelManager models, TextureManager textures) {
+	private GameWindow(int width, int height, Renderer renderer) {
 		WIDTH = width;
 		HEIGHT = height;
+		eventQueue = Collections.synchronizedList(new ArrayList<>());
 		this.renderer = renderer;
-		this.models = models;
-		this.textures = textures;
+		this.meshes = new MeshManager(this);
+		this.textures = new TextureManager(this);
 
 		final GLProfile profile = GLProfile.get(GLProfile.GL3);
 		GLCapabilities capabilities = new GLCapabilities(profile);
@@ -56,20 +63,23 @@ public final class GameWindow implements GLEventListener, Runnable {
 		window.setLocationRelativeTo(null);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		canvas.requestFocus();
-		
-		
+
 		// Transparent 16 x 16 pixel cursor image.
 		BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 
 		// Create a new blank cursor.
-		Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-		    cursorImg, new Point(0, 0), "blank cursor");
+		Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
 
 		// Set the blank cursor to the JFrame.
 		window.getContentPane().setCursor(blankCursor);
-		
 	}
-	
+
+	public static GameWindow create(int width, int height, Renderer renderer) {
+		GameWindow window = new GameWindow(width, height, renderer);
+		window.display();
+		return window;
+	}
+
 	public void assignMouseManager(MouseManager mouseManager) {
 		mouseManager.assignToWindow(window);
 		canvas.addMouseListener(mouseManager);
@@ -84,7 +94,7 @@ public final class GameWindow implements GLEventListener, Runnable {
 			String str = stroke.toString();
 			inputMap.put(stroke, str);
 			actionMap.put(str, new KeyBinding(str, keyManager, k, false));
-			
+
 			stroke = KeyStroke.getKeyStroke(k, 0, true);
 			str = stroke.toString();
 			inputMap.put(stroke, str);
@@ -117,14 +127,9 @@ public final class GameWindow implements GLEventListener, Runnable {
 
 	}
 
-	@Override
-	public void run() {
+	public void display() {
 		window.setVisible(true);
 		canvas.display();
-	}
-
-	protected void assignEntitySystem(EntitySystem es) {
-		this.es = es;
 	}
 
 	public void close() {
@@ -132,11 +137,32 @@ public final class GameWindow implements GLEventListener, Runnable {
 		canvas.destroy();
 	}
 
+	public MeshManager getMeshManager() {
+		return meshes;
+	}
+
+	public TextureManager getTextureManager() {
+		return textures;
+	}
+	
+	public void addGLEvent(GLEvent event){
+		eventQueue.add(event);
+	}
+
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		GL3 gl = drawable.getGL().getGL3();
-		if (renderer != null && es != null)
-			renderer.render(gl, glu, es);
+
+		synchronized (eventQueue) {
+			eventIter = eventQueue.iterator(); // Must be in synchronized block
+			while (eventIter.hasNext()){
+				GLEvent e = eventIter.next();
+				e.run(gl);
+				eventIter.remove();
+			}
+		}
+		if (renderer != null)
+			renderer.render(gl, glu);
 	}
 
 	@Override
@@ -144,20 +170,17 @@ public final class GameWindow implements GLEventListener, Runnable {
 		GL3 gl = drawable.getGL().getGL3();
 		if (renderer != null)
 			renderer.dispose(gl);
-		if (models != null)
-			models.cleanUp();
+		if (meshes != null)
+			meshes.cleanUp(gl);
 		if (textures != null)
-			textures.cleanUp();
+			textures.cleanUp(gl);
 	}
 
 	@Override
 	public void init(GLAutoDrawable drawable) {
 		GL3 gl = drawable.getGL().getGL3();
 		glu = new GLU();
-
-		models.preload(gl);
-		textures.preload(gl);
-		renderer.init(gl, es, WIDTH, HEIGHT, textures.defaultTexture());
+		renderer.init(gl, WIDTH, HEIGHT, textures.defaultTexture());
 	}
 
 	@Override

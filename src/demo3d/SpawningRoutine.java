@@ -7,7 +7,7 @@ import core.EntitySystem.SingletonFetcher;
 import core.Routine;
 import jaspr3d.Camera;
 import jaspr3d.Position3;
-import jaspr3d.RawModel;
+import jaspr3d.Mesh;
 import jaspr3d.Texture;
 
 public class SpawningRoutine extends Routine {
@@ -15,14 +15,14 @@ public class SpawningRoutine extends Routine {
 	private static SingletonFetcher cameras;
 	
 	public SpawningRoutine(){
-		super(Camera.class,Position3.class,Texture.class,RawModel.class);
+		super(Camera.class,Position3.class,Texture.class,Mesh.class);
 	}
 	
 	@Override
 	public void routine() {
 		Camera camera = (Camera) cameras.fetchComponent();
 		if (Test3D.keys.down(KeyEvent.VK_SPACE)){
-			new Entity(Test3D.models.get("man.obj"), Test3D.textures.get("pepe.png"), new Position3(camera.x(),camera.y() - 25,camera.z()));
+			new Entity(Test3D.meshes.get("man.obj"), Test3D.textures.get("pepe.png"), new Position3(camera.x(),camera.y() - 25,camera.z()));
 		}
 	}
 

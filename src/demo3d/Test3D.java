@@ -14,14 +14,14 @@ import jaspr3d.Light;
 import jaspr3d.Position3;
 import jaspr3d.Vector3;
 import jaspr3d.rendering.Renderer;
-import res.ModelManager;
+import res.MeshManager;
 import res.TextureManager;
 
 public class Test3D {
 
 	public static final int WINDOW_WIDTH = 1400, WINDOW_HEIGHT = 1000, DESIRED_FPS = 100;
 	public static final float FOV = 70, NEAR_FRAME = 0.1f, FAR_FRAME = 6000;
-	public static ModelManager models;
+	public static MeshManager meshes;
 	public static TextureManager textures;
 	public static KeyManager keys;
 	public static MouseManager mouse;
@@ -29,11 +29,14 @@ public class Test3D {
 	public static EntitySystem es;
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
-		models = new ModelManager();
-		textures = new TextureManager("default.png");
 		es = new EntitySystem();
-		GameWindow window = new GameWindow(WINDOW_WIDTH, WINDOW_HEIGHT, new Renderer(FOV, NEAR_FRAME, FAR_FRAME),
-				models, textures);
+		
+		GameWindow window = GameWindow.create(WINDOW_WIDTH, WINDOW_HEIGHT, new Renderer(es, FOV, NEAR_FRAME, FAR_FRAME));
+		
+		meshes = window.getMeshManager();
+		meshes.preload();
+		textures = window.getTextureManager();
+		textures.preload();
 
 		game = new GameManager(DESIRED_FPS, es, window);
 		
@@ -45,13 +48,13 @@ public class Test3D {
 
 		new Entity(new Camera());
 		//new Entity(new Light(new Vector3(0,-50,0), new Vector3(0.7f,0.7f,0.7f)));
-		new Entity(new Light(new Vector3(-300, 20, -400), new Vector3(0.2f, 0.2f, 1), new Vector3(0,0.001f,0.0001f)));
-		new Entity(new Light(new Vector3(-300, 20, 400), new Vector3(1, 0.2f, 0.2f), new Vector3(0,0.001f,0.0001f)));
-		new Entity(new Light(new Vector3(350, 20, 0), new Vector3(0.2f, 1, 0.2f), new Vector3(0,0.001f,0.0001f)));
+		new Entity(new Light(new Vector3(-300, 20, -400), new Vector3(0.2f, 0.2f, 1) /*, new Vector3(0,0.001f,0.0001f)*/));
+		new Entity(new Light(new Vector3(-300, 20, 400), new Vector3(1, 0.2f, 0.2f) /*, new Vector3(0,0.001f,0.0001f)*/));
+		new Entity(new Light(new Vector3(350, 20, 0), new Vector3(0.2f, 1, 0.2f) /*, new Vector3(0,0.001f,0.0001f)*/));
 		
 		for (int i = 0; i < 70; i++) {
 			for (int j = 0; j < 70; j++) {
-				new Entity(models.get("capricorn.obj"), new Position3((i - 35) * 60, -50, (j - 35) * 60, 0, 0, 0));
+				new Entity(meshes.get("capricorn.obj"), new Position3((i - 35) * 60, -50, (j - 35) * 60, 0, 0, 0));
 			}
 		}
 		

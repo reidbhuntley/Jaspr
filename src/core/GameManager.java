@@ -27,8 +27,6 @@ public class GameManager {
 	public GameManager(long targetFps, EntitySystem entitySystem, GameWindow window) {
 		es = entitySystem;
 		this.window = window;
-		window.assignEntitySystem(es);
-		window.run();
 		executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 2);
 		newPhase = false;
 		quit = true;
@@ -60,7 +58,11 @@ public class GameManager {
 				Thread.sleep((dt - frameTime) / 1000000);
 			currentTime = System.nanoTime();
 			
-			Thread renderThread = new Thread(window);
+			Thread renderThread = new Thread(){
+				public void run(){
+					window.display();
+				}
+			};
 			renderThread.start();
 			
 			accumulator += frameTime;

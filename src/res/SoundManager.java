@@ -18,7 +18,7 @@ public class SoundManager extends AssetType<AudioInputStream> {
 	}
 	
 	public Clip getSound(String filename) {
-		AudioInputStream stream = getAsset(filename);
+		AudioInputStream stream = getRawAsset(filename);
 		if(stream != null){
 			return prepareClip(stream);
 		} else {
@@ -42,7 +42,7 @@ public class SoundManager extends AssetType<AudioInputStream> {
 	}
 	
 	public Loop getLoop(String filename){
-		return new Loop(getAsset(filename));
+		return new Loop(getRawAsset(filename));
 	}
 	
 	public void playSound(String filename){
@@ -51,7 +51,7 @@ public class SoundManager extends AssetType<AudioInputStream> {
 			clip.start();
 	}
 	
-	public AudioInputStream load(InputStream in, String name) {
+	public AudioInputStream loadAssetFromFile(InputStream in, String name) {
 		AudioInputStream ais = null;
 		try {
 			ais = AudioSystem.getAudioInputStream(in);

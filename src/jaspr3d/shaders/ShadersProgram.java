@@ -16,26 +16,24 @@ public abstract class ShadersProgram {
 	private int programID;
 	private int vertexShaderID;
 	private int fragmentShaderID;
-	private GL3 gl;
 	private HashMap<String, Integer> attributes;
 
 	public ShadersProgram(GL3 gl, String vertexFile, String fragmentFile) {
-		this.gl = gl;
 		attributes = new HashMap<>();
-		vertexShaderID = loadShader(vertexFile, GL3.GL_VERTEX_SHADER);
-		fragmentShaderID = loadShader(fragmentFile, GL3.GL_FRAGMENT_SHADER);
+		vertexShaderID = loadShader(gl, vertexFile, GL3.GL_VERTEX_SHADER);
+		fragmentShaderID = loadShader(gl, fragmentFile, GL3.GL_FRAGMENT_SHADER);
 		programID = gl.glCreateProgram();
 		gl.glAttachShader(programID, vertexShaderID);
 		gl.glAttachShader(programID, fragmentShaderID);
-		bindAttributes();
+		bindAttributes(gl);
 		gl.glLinkProgram(programID);
 		gl.glValidateProgram(programID);
-		initUniformLocations();
+		initUniformLocations(gl);
 	}
 
-	protected abstract void initUniformLocations();
+	protected abstract void initUniformLocations(GL3 gl);
 
-	protected int initUniformLocation(String uniformName) {
+	protected int initUniformLocation(GL3 gl, String uniformName) {
 		int location = gl.glGetUniformLocation(programID, uniformName);
 		attributes.put(uniformName, location);
 		return location;
@@ -45,15 +43,15 @@ public abstract class ShadersProgram {
 		return attributes.get(uniformName);
 	}
 
-	protected void loadFloat(int location, float value) {
+	protected void loadFloat(GL3 gl, int location, float value) {
 		gl.glUniform1f(location, value);
 	}
 
-	protected void loadVector(int location, float v0, float v1, float v2) {
+	protected void loadVector(GL3 gl, int location, float v0, float v1, float v2) {
 		gl.glUniform3f(location, v0, v1, v2);
 	}
 
-	protected void loadBoolean(int location, boolean value) {
+	protected void loadBoolean(GL3 gl, int location, boolean value) {
 		float toLoad = 0;
 		if (value)
 			toLoad = 1;
@@ -62,20 +60,20 @@ public abstract class ShadersProgram {
 		gl.glUniform1f(location, toLoad);
 	}
 
-	protected void loadMatrix(int location, Matrix4 matrix) {
+	protected void loadMatrix(GL3 gl, int location, Matrix4 matrix) {
 		gl.glUniformMatrix4fv(location, 1, false, matrix.getMatrix(), 0);
 	}
 
-	public void start() {
+	public void start(GL3 gl) {
 		gl.glUseProgram(programID);
 	}
 
-	public void stop() {
+	public void stop(GL3 gl) {
 		gl.glUseProgram(0);
 	}
 
-	public void cleanUp() {
-		stop();
+	public void cleanUp(GL3 gl) {
+		stop(gl);
 		gl.glDetachShader(programID, vertexShaderID);
 		gl.glDetachShader(programID, fragmentShaderID);
 		gl.glDeleteShader(vertexShaderID);
@@ -83,13 +81,13 @@ public abstract class ShadersProgram {
 		gl.glDeleteProgram(programID);
 	}
 
-	protected abstract void bindAttributes();
+	protected abstract void bindAttributes(GL3 gl);
 
-	protected void bindAttribute(int attribute, String variableName) {
+	protected void bindAttribute(GL3 gl, int attribute, String variableName) {
 		gl.glBindAttribLocation(programID, attribute, variableName);
 	}
 
-	private int loadShader(String file, int type) {
+	private int loadShader(GL3 gl, String file, int type) {
 		List<String> lines = new ArrayList<>();
 		List<Integer> lengths = new ArrayList<>();
 		try {

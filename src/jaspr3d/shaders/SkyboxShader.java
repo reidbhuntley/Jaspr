@@ -15,17 +15,17 @@ public class SkyboxShader extends ShadersProgram {
 	}
 
 	@Override
-	protected void initUniformLocations() {
-		super.initUniformLocation("vpMatrix");
+	protected void initUniformLocations(GL3 gl) {
+		super.initUniformLocation(gl, "vpMatrix");
 	}
 
 	@Override
-	protected void bindAttributes() {
-		super.bindAttribute(VAOLoader.ATTR_VERTICES, "position");
+	protected void bindAttributes(GL3 gl) {
+		super.bindAttribute(gl, VAOLoader.ATTR_VERTICES, "position");
 	}
 
-	public void loadVpMatrix(Matrix4 matrix) {
-		super.loadMatrix(super.getUniformLocation("vpMatrix"), matrix);
+	public void loadVpMatrix(GL3 gl, Matrix4 matrix) {
+		super.loadMatrix(gl, super.getUniformLocation("vpMatrix"), matrix);
 	}
 
 }

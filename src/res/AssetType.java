@@ -14,12 +14,23 @@ public abstract class AssetType<T> {
 	private HashMap<String, T> assets;
 	protected final String folderName, fileExtension;
 	private boolean loaded;
+	private boolean isInJar;
+	private JarFile jar;
 
 	public AssetType(String folderName, String fileExtension) {
 		this.folderName = folderName;
 		this.fileExtension = fileExtension;
 		assets = new HashMap<>();
 		loaded = false;
+		final File jarFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+		isInJar = jarFile.isFile();
+		if(isInJar){
+			try {
+				jar = new JarFile(jarFile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public void preload() {
@@ -32,9 +43,7 @@ public abstract class AssetType<T> {
 	public void loadFromDir(String path) {
 		path = "res/"+path+"/";
 		try {
-			final File jarFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
-			if (jarFile.isFile()) { // Run with JAR file
-				final JarFile jar = new JarFile(jarFile);
+			if (isInJar) { // Run with JAR file
 				final Enumeration<JarEntry> entries = jar.entries();
 				while (entries.hasMoreElements()) {
 					final JarEntry entry = entries.nextElement();
@@ -43,33 +52,53 @@ public abstract class AssetType<T> {
 						break;
 					if (name.startsWith(path) && fileExtension.equals(getExtension(name))) { // filter according to the path
 						File file = new File(name);
-						assets.put(file.getName(), load(jar.getInputStream(entry), file.getName()));
+						assets.put(file.getName(), loadAssetFromFile(jar.getInputStream(entry), file.getName()));
 					}
 				}
 				jar.close();
 			} else { // Run with IDE
+				
 				final File url = new File("src/"+path);
 				if (url != null) {
 					final File apps = new File(url.toURI());
 					for (File app : apps.listFiles()) {
-						if(fileExtension.equals(getExtension(app.getName())))
-							assets.put(app.getName(), load(new FileInputStream(app), app.getName()));
+						if(fileExtension.equals(getExtension(app.getName()))){
+							assets.put(app.getName(), loadAssetFromFile(new FileInputStream(app), app.getName()));
+						}
 					}
 				}
 			}
 		} catch (IOException e) {
-			System.err.println("There was an error loading files from AssetType " + getClass().getName());
-			System.exit(-1);
+			throw new IllegalStateException("There was an error loading files from AssetType " + getClass().getName());
+			//System.exit(-1);
 		}
 	}
 
-	protected T getAsset(String file){
+	protected T getRawAsset(String file, boolean loadIfMissing){
 		T asset = assets.get(file);
 		if(asset == null){
-			System.err.println("Missing file " + file);
-			System.exit(-1);
+			if(loadIfMissing){
+				String fullFile = "res/"+folderName+"/"+file+"/";
+				try {
+					if(isInJar){
+						asset = loadAssetFromFile(jar.getInputStream(jar.getEntry(fullFile)), file);
+					} else {
+						asset = loadAssetFromFile(new FileInputStream("src/"+fullFile), file);
+					}
+					assets.put(file, asset);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				throw new IllegalArgumentException("Missing file " + file);
+				//System.exit(-1);
+			}
 		}
 		return asset;
+	}
+	
+	protected T getRawAsset(String file){
+		return getRawAsset(file,false);
 	}
 
 	public static String getExtension(String filename) {
@@ -89,5 +118,5 @@ public abstract class AssetType<T> {
 		}
 	}
 
-	public abstract T load(InputStream in, String filename) throws IOException;
+	protected abstract T loadAssetFromFile(InputStream in, String filename) throws IOException;
 }

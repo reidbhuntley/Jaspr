@@ -21,44 +21,44 @@ public class StaticShader extends ShadersProgram {
 	}
 
 	@Override
-	protected void bindAttributes() {
-		super.bindAttribute(VAOLoader.ATTR_VERTICES, "position");
-		super.bindAttribute(VAOLoader.ATTR_TEXCOORDS, "textureCoords");
-		super.bindAttribute(VAOLoader.ATTR_NORMALS, "normal");
+	protected void bindAttributes(GL3 gl) {
+		super.bindAttribute(gl, VAOLoader.ATTR_VERTICES, "position");
+		super.bindAttribute(gl, VAOLoader.ATTR_TEXCOORDS, "textureCoords");
+		super.bindAttribute(gl, VAOLoader.ATTR_NORMALS, "normal");
 	}
 
 	@Override
-	protected void initUniformLocations() {
-		super.initUniformLocation("modelMatrix");
-		super.initUniformLocation("mvpMatrix");
-		super.initUniformLocation("cameraPosition");
-		super.initUniformLocation("shineDamper");
-		super.initUniformLocation("reflectivity");
+	protected void initUniformLocations(GL3 gl) {
+		super.initUniformLocation(gl, "modelMatrix");
+		super.initUniformLocation(gl, "mvpMatrix");
+		super.initUniformLocation(gl, "cameraPosition");
+		super.initUniformLocation(gl, "shineDamper");
+		super.initUniformLocation(gl, "reflectivity");
 		for(int i = 0; i < MAX_LIGHTS; i++){
-			super.initUniformLocation("lightPosition["+i+"]");
-			super.initUniformLocation("lightColor["+i+"]");
-			super.initUniformLocation("attenuation["+i+"]");
+			super.initUniformLocation(gl, "lightPosition["+i+"]");
+			super.initUniformLocation(gl, "lightColor["+i+"]");
+			super.initUniformLocation(gl, "attenuation["+i+"]");
 		}
 	}
 	
-	public void loadShineVariables(float shineDamper, float reflectivity){
-		super.loadFloat(getUniformLocation("shineDamper"), shineDamper);
-		super.loadFloat(getUniformLocation("reflectivity"), reflectivity);
+	public void loadShineVariables(GL3 gl, float shineDamper, float reflectivity){
+		super.loadFloat(gl, getUniformLocation("shineDamper"), shineDamper);
+		super.loadFloat(gl, getUniformLocation("reflectivity"), reflectivity);
 	}
 	
-	public void loadCameraPosition(Camera pos){
-		super.loadVector(getUniformLocation("cameraPosition"),pos.x(),pos.y(),pos.z());
+	public void loadCameraPosition(GL3 gl, Camera pos){
+		super.loadVector(gl, getUniformLocation("cameraPosition"),pos.x(),pos.y(),pos.z());
 	}
 	
-	public void loadWorldMatrix(Matrix4 matrix){
-		super.loadMatrix(getUniformLocation("modelMatrix"), matrix);
+	public void loadWorldMatrix(GL3 gl, Matrix4 matrix){
+		super.loadMatrix(gl, getUniformLocation("modelMatrix"), matrix);
 	}
 	
-	public void loadMvpMatrix(Matrix4 matrix){
-		super.loadMatrix(getUniformLocation("mvpMatrix"), matrix);
+	public void loadMvpMatrix(GL3 gl, Matrix4 matrix){
+		super.loadMatrix(gl, getUniformLocation("mvpMatrix"), matrix);
 	}
 	
-	public void loadLights(List<Light> lights){
+	public void loadLights(GL3 gl, List<Light> lights){
 		for(int i = 0; i < MAX_LIGHTS; i++){
 			Light light;
 			Vector3 color, attenuation;
@@ -71,9 +71,9 @@ public class StaticShader extends ShadersProgram {
 				color = new Vector3();
 				attenuation = new Vector3(1,0,0);
 			}
-			super.loadVector(getUniformLocation("lightPosition["+i+"]"),light.x(),light.y(),light.z());
-			super.loadVector(getUniformLocation("lightColor["+i+"]"),color.x(),color.y(),color.z());
-			super.loadVector(getUniformLocation("attenuation["+i+"]"),attenuation.x(),attenuation.y(),attenuation.z());
+			super.loadVector(gl, getUniformLocation("lightPosition["+i+"]"),light.x(),light.y(),light.z());
+			super.loadVector(gl, getUniformLocation("lightColor["+i+"]"),color.x(),color.y(),color.z());
+			super.loadVector(gl, getUniformLocation("attenuation["+i+"]"),attenuation.x(),attenuation.y(),attenuation.z());
 		}
 	}
 

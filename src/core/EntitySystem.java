@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class EntitySystem {
@@ -64,10 +65,10 @@ public class EntitySystem {
 
 	public <T extends Component> HashMap<Entity, Component> readComponentTable(Class<T> type) {
 		HashMap<Entity, Component> old = componentTables.get(type), out = new HashMap<>();
-		for (Entity e : old.keySet()) {
-			Component c = old.get(e).getClone();
+		for (Entry<Entity,Component> e : old.entrySet()) {
+			Component c = e.getValue();
 			assertClone(c, type);
-			out.put(e, (Component) c);
+			out.put(e.getKey(), c);
 		}
 		return out;
 	}
@@ -162,6 +163,12 @@ public class EntitySystem {
 		HashMap<Entity, ? extends Component> table = componentTables.get(type);
 		return (T) table.get(e);
 	}
+	
+	public HashMap<Entity,Component> getComponentTable(Class<? extends Component> type) {
+		context.get().assertDependency(type);
+		registerComponent(type);
+		return new HashMap<>(componentTables.get(type));
+	}
 
 	protected static void assertClone(Component dependency, Class<? extends Component> type) {
 		if (dependency == null)
@@ -182,10 +189,11 @@ public class EntitySystem {
 	}
 
 	protected void updateFetchers() {
-		for (Class<? extends Component> c : entityFetchers.keySet()) {
+		for (Entry<Class<? extends Component>,EntityFetcher> e : entityFetchers.entrySet()) {
+			Class<? extends Component> c = e.getKey();
 			List<Entity> entitiesAdded = componentsAdded.get(c);
 			List<Entity> entitiesRemoved = componentsRemoved.get(c);
-			EntityFetcher fetcher = entityFetchers.get(c);
+			EntityFetcher fetcher = e.getValue();
 			if (fetcher.isNew()) {
 				fetcher.addEnts(componentTables.get(c).keySet());
 			} else {
